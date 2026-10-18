@@ -11,6 +11,10 @@ from modelo import (cargar_modelo, clasificar, leer_imagen, sha256_archivo,
 from recomendacion import generar_recomendacion, LLM_ID, ErrorRecomendacion
 
 BASE = Path(__file__).resolve().parent
+# Al cambiar el prompt, no conservar en pantalla una orientación de la versión anterior.
+if st.session_state.get('version_orientacion') != 'lenguaje-claro-1':
+    st.session_state.pop('recomendacion', None)
+    st.session_state['version_orientacion'] = 'lenguaje-claro-1'
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Clasificación de tumores cerebrales', page_icon='🧠', layout='wide')
 st.markdown('''<style>
