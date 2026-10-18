@@ -10,11 +10,17 @@ Aplicación educativa en Streamlit para el punto 4.3. Utiliza el checkpoint entr
 4. Confirma con **Commit changes**. El `.pt` pesa aproximadamente 16 MB y se puede subir desde la web de GitHub.
 5. En Streamlit Community Cloud, elige **Create app → Deploy a public app from GitHub** (el texto puede variar).
 6. Repositorio: `Crisgutierrezc/proyecto-tumores-cerebrales`; rama: la que contiene los archivos, normalmente `main`; archivo principal: `app.py`.
-7. En configuración avanzada, selecciona **Python 3.12**. No requiere Secrets en esta versión.
+7. En configuración avanzada, selecciona **Python 3.12**. Añade GEMINI_API_KEY en Secrets antes de probar la orientación.
 8. Pulsa **Deploy** y espera a que instale las dependencias. Copia el enlace `.streamlit.app`.
 9. Prueba una imagen del dataset y pulsa también **Generar recomendación con IA**. El punto del LLM solo se considera verificado al obtener una respuesta en el servidor publicado.
 
-El LLM abierto Qwen2.5-0.5B-Instruct se descarga al primer uso sin cuenta ni API de pago. Su descarga es de aproximadamente 1 GB; necesita conexión, tiempo y memoria. La app lo carga en bfloat16 y limita a una generación simultánea. Si la instancia gratuita no tiene memoria suficiente, habrá que conectar una API de LLM o cambiar el alojamiento: el error se muestra explícitamente, sin simular una recomendación. No está garantizado el funcionamiento del LLM en cualquier cuota de Community Cloud hasta probar el despliegue real.
+## Integración Gemini API (4.5)
+
+La orientación usa Google Gemini por API. Se envían solo clase, confianza y contexto educativo; no se envía imagen, ruta, nombre ni datos personales. La respuesta se organiza en significado, revisión recomendada y límites. El prompt exige revisión humana para baja confianza (<80 %, umbral orientativo) y prohíbe diagnósticos, gravedad, tratamientos, falsa tranquilidad y afirmaciones inventadas. Es orientación de revisión de la predicción, no una evaluación de salud.
+
+Guardar GEMINI_API_KEY exclusivamente en Secrets de Streamlit o variable de entorno. Opcional: GEMINI_MODEL permite configurar otro modelo compatible; valor por defecto gemini-3.5-flash-lite. Nunca subir una clave a GitHub. Para desarrollo local puede usarse .streamlit/secrets.toml, que debe estar excluido del repositorio.
+
+La llamada usa la API REST oficial, timeout y errores seguros de clave/permisos/cuota. No activa facturación ni sustituye fallos por respuestas simuladas. La disponibilidad y cuota dependen de la cuenta de Google. Las respuestas incompletas no se presentan como orientación válida. El filtro automático no garantiza detectar todos los errores.
 
 ## Ejecutar en un computador
 
@@ -35,7 +41,7 @@ streamlit run app.py
 | Carga de imagen | JPG/PNG, vista previa y botón para clasificar |
 | Clase, confianza y todas las probabilidades | Nombre legible, confianza softmax, barras y tabla |
 | Desempeño real de prueba | Pestaña propia, accuracy, F1 macro, por clase y matriz |
-| Botón que envía el resultado a un LLM | Clase y confianza a Qwen; texto generado en el servidor |
+| Botón que envía el resultado a un LLM | Clase y confianza a Gemini por API; clave en Secrets |
 | Uso responsable | Aviso permanente, alerta bajo 80 %, revisión humana |
 
 El umbral 80 % es una regla de interfaz orientativa, no un umbral clínico validado. La confianza de una imagen no equivale a accuracy ni a probabilidad clínica.
@@ -55,7 +61,7 @@ Las cifras por clase fueron transcritas desde las salidas con cuatro decimales. 
 
 Los colaboradores pueden editar archivos desde GitHub o trabajar en ramas y proponer pull requests. Las modificaciones a la rama desplegada actualizan la app. Mantener juntos el modelo, las clases, el preprocesamiento y sus métricas. No subir claves, datos personales ni imágenes de pacientes reales.
 
-Para explicar el código: Streamlit vuelve a ejecutar `app.py` con cada interacción; `st.session_state` conserva el resultado por sesión y lo borra si cambia la imagen. `st.cache_resource` conserva el clasificador cargado. El LLM se carga una sola vez y no recibe píxeles. El modelo de clasificación siempre usa `eval()` y `torch.inference_mode()`.
+Para explicar el código: Streamlit vuelve a ejecutar `app.py` con cada interacción; `st.session_state` conserva el resultado por sesión y lo borra si cambia la imagen. `st.cache_resource` conserva el clasificador cargado. El LLM se consulta por API y no recibe píxeles; la clave se lee de Secrets sin mostrarse. El modelo de clasificación siempre usa `eval()` y `torch.inference_mode()`.
 
 ## Limitaciones y fuentes
 
@@ -64,6 +70,6 @@ Uso académico, sin validación clínica. No hay control fiable de imágenes fue
 - Dataset: https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset
 - Streamlit: https://docs.streamlit.io/deploy/streamlit-community-cloud
 - timm: https://huggingface.co/docs/timm/quickstart
-- Modelo de texto (Apache 2.0): https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct
+- Gemini API: https://ai.google.dev/api/generate-content
 
 Consultar las condiciones de los datos y pesos antes de cualquier uso distinto a la entrega académica. Las licencias de los modelos no se sustituyen por este README.

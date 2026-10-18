@@ -8,7 +8,7 @@ import streamlit as st
 import torch
 from modelo import (cargar_modelo, clasificar, leer_imagen, sha256_archivo,
                     NOMBRES, UMBRAL_CONFIANZA)
-from recomendacion import generar_recomendacion, LLM_ID
+from recomendacion import generar_recomendacion, LLM_ID, ErrorRecomendacion
 
 BASE = Path(__file__).resolve().parent
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
@@ -102,17 +102,19 @@ with analizar:
 
     st.divider()
     st.subheader('3. Genera una orientación con IA')
-    st.write('Un modelo de lenguaje recibe la clase predicha y su confianza para redactar una orientación educativa. No recibe la imagen ni examina al paciente.')
-    st.caption('Sin clave de API. La primera consulta descarga el modelo abierto (aprox. 1 GB) y puede tardar; las siguientes reutilizan el modelo en memoria.')
+    st.write('Recibe orientación sobre cómo revisar esta predicción con un profesional, según la clase y la confianza. No es una evaluación médica.')
+    st.caption('Al pulsar el botón se envían a Google Gemini solo la clase, la confianza y el contexto educativo. No se envían la imagen, su nombre ni datos personales. La clave está protegida en Secrets.')
     if st.button('Generar recomendación con IA', disabled=st.session_state.get('resultado') is None):
         st.session_state.pop('recomendacion', None)
         try:
-            with st.spinner('Preparando el modelo de texto y generando orientación…'):
+            with st.spinner('Consultando Gemini para orientar la revisión del resultado…'):
                 st.session_state['recomendacion'] = generar_recomendacion(st.session_state['resultado'])
+        except ErrorRecomendacion as exc:
+            st.error(str(exc))
         except ValueError:
             st.warning('La respuesta del modelo de texto no superó la revisión automática y se descartó. No interpretes la confianza como riesgo de enfermedad. Solicita revisión humana.')
         except Exception:
-            st.error('No se pudo generar la recomendación. Puede faltar conexión o memoria del servidor. Puedes reintentar; no se ha sustituido la respuesta por un texto simulado.')
+            st.error('No se pudo generar la orientación. Reintenta más tarde; no se ha sustituido la respuesta por un texto simulado.')
     if st.session_state.get('recomendacion'):
         st.caption(f'Texto generado por {LLM_ID}. Puede contener errores; debe revisarse.')
         # st.text evita que un LLM inserte enlaces o contenido HTML en la interfaz.
@@ -152,7 +154,7 @@ with explicar:
     1. **Preparación:** Training original se dividió 85/15 de forma estratificada, con semilla 42. Testing permaneció intacto.
     2. **Fine-tuning:** EfficientNet-B0 partió de pesos de ImageNet y ajustó todos sus parámetros para cuatro clases. La mejor época se eligió por F1 macro de validación.
     3. **Predicción:** usamos RGB, redimensionamiento, recorte central y normalización guardados en el `.pt`. El recorte puede omitir información en los bordes.
-    4. **Orientación:** Qwen redacta texto a partir de clase y confianza. Es un modelo distinto al que clasifica la resonancia y no valida su predicción.
+    4. **Orientación:** Gemini recibe por API clase, confianza y contexto educativo. Sugiere revisión humana, explica límites y no valida la predicción. La imagen no se envía a Google y la clave se guarda en Secrets.
     ''')
     st.markdown('**Límites:** solo cuatro categorías, imágenes 2D similares a las de entrenamiento, sin localización ni segmentación del tumor y sin validación clínica externa. La app no detecta automáticamente si subiste una fotografía u otra imagen ajena al problema: también podría asignarle una clase.')
     st.markdown('**Para el grupo:** `app.py` organiza la interfaz; `modelo.py` carga y ejecuta EfficientNet; `recomendacion.py` consulta el LLM; `metricas_test.json` conserva los resultados del notebook.')
