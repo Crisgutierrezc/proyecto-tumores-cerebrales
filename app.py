@@ -35,24 +35,24 @@ def metricas():
 st.markdown('''<div class="encabezado"><div class="etiqueta">PROYECTO DE INTELIGENCIA ARTIFICIAL · 4.3</div>
 <h1>Clasificación de tumores cerebrales</h1>
 <p>Explora cómo un modelo entrenado clasifica imágenes de resonancia magnética cerebral.</p></div>''', unsafe_allow_html=True)
-st.warning('Uso exclusivamente educativo. Esta app no confirma ni descarta un diagnóstico y no reemplaza la evaluación de un profesional de salud.')
+st.warning('Esta herramienta es un proyecto educativo. Puede equivocarse y no reemplaza la evaluación de un profesional de salud.')
 
 with st.sidebar:
     st.header('Acerca del proyecto')
     st.write('**Modelo:** EfficientNet-B0 con fine-tuning')
-    st.write('**Clases:** glioma, meningioma, sin tumor y tumor hipofisario.')
+    st.write('**Categorías:** glioma, meningioma, sin tumor y tumor hipofisario.')
     st.divider()
-    st.caption('Usa imágenes del dataset para la demostración. No subas información que identifique a pacientes.')
+    st.caption('Para probarla, usa imágenes de la base del proyecto. Evita subir nombres u otros datos que identifiquen a una persona.')
     st.caption('La aplicación no añade tus imágenes a entrenamiento. El archivo se procesa en el servidor durante la sesión.')
 
-analizar, desempeno, explicar = st.tabs(['Analizar imagen', 'Desempeño en prueba', 'Cómo funciona'])
+analizar, desempeno, explicar = st.tabs(['Analizar imagen', 'Qué tan bien funciona', 'Sobre el proyecto'])
 
 with analizar:
     izquierda, derecha = st.columns([1,1.15], gap='large')
     with izquierda:
         st.subheader('1. Sube una resonancia')
         archivo = st.file_uploader('Arrastra tu imagen o selecciona un archivo', type=['jpg','jpeg','png'])
-        st.caption('JPG o PNG · máximo 10 MB · imagen 2D de resonancia cerebral. No admite DICOM ni volúmenes 3D.')
+        st.caption('JPG o PNG · máximo 10 MB. Sube una sola imagen de resonancia cerebral, no un estudio médico completo.')
         datos = archivo.getvalue() if archivo else None
         identificador = hashlib.sha256(datos).hexdigest() if datos else None
         # Invalidar todo al cambiar/quitar la imagen impide mostrar un resultado anterior.
@@ -77,37 +77,37 @@ with analizar:
                 st.error('No se pudo cargar o ejecutar el modelo. Revisa que el archivo .pt esté en el repositorio junto a app.py.')
 
     with derecha:
-        st.subheader('2. Revisa la clasificación')
+        st.subheader('2. Mira el resultado')
         resultado = st.session_state.get('resultado')
         if resultado is None:
             st.info('Sube una imagen y pulsa «Clasificar imagen» para ver el resultado.')
         else:
-            st.metric('Clase predicha', NOMBRES[resultado['clase']])
-            st.metric('Confianza en esta imagen', f"{resultado['confianza']:.1%}")
-            st.caption('Confianza = puntaje softmax de la clase ganadora. No es accuracy ni probabilidad clínica de tener un tumor.')
+            st.metric('Categoría sugerida por la IA', NOMBRES[resultado['clase']])
+            st.metric('Confianza del modelo', f"{resultado['confianza']:.1%}")
+            st.caption('Este porcentaje indica cuánto favorece el modelo esta categoría frente a las otras tres. No indica la probabilidad de tener un tumor ni garantiza que la respuesta sea correcta.')
             if resultado['baja_confianza']:
-                st.warning('Confianza baja: inferior al 80 %. Requiere revisión humana. Este umbral es orientativo y no está validado clínicamente.')
-            else:
-                st.info('Una confianza alta también puede acompañar una predicción incorrecta. Mantén la revisión humana.')
+                st.warning('El modelo tiene dudas: su confianza es menor al 80 %. No te quedes solo con esta respuesta; pide que un profesional revise la imagen. El 80 % es una referencia del proyecto, no un criterio médico.')
             if resultado['clase'] == 'notumor':
-                st.warning('La etiqueta «Sin tumor» es una predicción del modelo; no permite descartar una enfermedad.')
-            tabla = pd.DataFrame([{'Clase':NOMBRES[c], 'Probabilidad':p} for c,p in resultado['probabilidades'].items()])
+                st.info('«Sin tumor» es la categoría elegida por la IA. Por sí sola, esta respuesta no permite saber si una persona está sana.')
+            st.markdown('**Cómo se repartió la confianza entre las categorías**')
+            tabla = pd.DataFrame([{'Categoría':NOMBRES[c], 'Confianza':p} for c,p in resultado['probabilidades'].items()])
             barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#238b8e').encode(
-                x=alt.X('Probabilidad:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%'), title='Puntaje softmax'),
-                y=alt.Y('Clase:N',sort=None,title=None),
-                tooltip=['Clase',alt.Tooltip('Probabilidad:Q', format='.2%')]).properties(height=200)
+                x=alt.X('Confianza:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%'), title='Confianza del modelo (%)'),
+                y=alt.Y('Categoría:N',sort=None,title=None),
+                tooltip=['Categoría',alt.Tooltip('Confianza:Q', format='.2%')]).properties(height=200)
             st.altair_chart(barras, use_container_width=True)
-            st.dataframe(tabla.assign(Probabilidad=tabla.Probabilidad.map(lambda p:f'{p:.2%}')),
-                         hide_index=True, width='stretch')
+            with st.expander('Ver porcentajes de las cuatro categorías'):
+                st.dataframe(tabla.assign(Confianza=tabla.Confianza.map(lambda p:f'{p:.2%}')),
+                             hide_index=True, width='stretch')
 
     st.divider()
-    st.subheader('3. Genera una orientación con IA')
-    st.write('Recibe orientación sobre cómo revisar esta predicción con un profesional, según la clase y la confianza. No es una evaluación médica.')
-    st.caption('Al pulsar el botón se envían a Google Gemini solo la clase, la confianza y el contexto educativo. No se envían la imagen, su nombre ni datos personales. La clave está protegida en Secrets.')
+    st.subheader('3. Entiende el resultado y el siguiente paso')
+    st.write('¿Qué hago con esta respuesta? Pide una explicación sencilla y una orientación para revisarla con un profesional de salud.')
+    st.caption('Gemini recibe solo la categoría, el porcentaje de confianza y el contexto del proyecto. No recibe tu imagen ni su nombre.')
     if st.button('Generar recomendación con IA', disabled=st.session_state.get('resultado') is None):
         st.session_state.pop('recomendacion', None)
         try:
-            with st.spinner('Consultando Gemini para orientar la revisión del resultado…'):
+            with st.spinner('Preparando una explicación para ti…'):
                 st.session_state['recomendacion'] = generar_recomendacion(st.session_state['resultado'])
         except ErrorRecomendacion as exc:
             st.error(str(exc))
@@ -116,19 +116,26 @@ with analizar:
         except Exception:
             st.error('No se pudo generar la orientación. Reintenta más tarde; no se ha sustituido la respuesta por un texto simulado.')
     if st.session_state.get('recomendacion'):
-        st.caption(f'Texto generado por {LLM_ID}. Puede contener errores; debe revisarse.')
-        # st.text evita que un LLM inserte enlaces o contenido HTML en la interfaz.
-        st.text(st.session_state['recomendacion'])
-        st.info('Orientación responsable de la app: ningún resultado confirma ni descarta enfermedad. Solicita revisión profesional y no tomes decisiones médicas con esta demostración.')
+        st.caption(f'Orientación generada por {LLM_ID}. También puede equivocarse.')
+        # Los encabezados son nuestros; el texto generado se muestra sin HTML ni enlaces.
+        titulos = {'En palabras simples', 'Qué puedes hacer ahora', 'Recuerda'}
+        for bloque in st.session_state['recomendacion'].split('\n\n'):
+            titulo, salto, contenido = bloque.partition('\n')
+            if salto and titulo in titulos:
+                st.markdown(f'#### {titulo}')
+                st.text(contenido)
+            else:
+                st.text(bloque)
 
 with desempeno:
-    st.subheader('Resultados del conjunto de prueba')
+    st.subheader('Cómo funcionó el modelo con imágenes de prueba')
     m = metricas()
-    st.write('Estas métricas se obtuvieron en **1.600 imágenes de Testing**, reservadas para evaluación. Describen el rendimiento del conjunto; no la confianza de la imagen que subas.')
+    st.write('Probamos el modelo con **1.600 imágenes** que no se usaron para ajustar sus pesos. Estos resultados resumen esa prueba; no dicen si la respuesta de tu imagen es correcta.')
     a,b,c = st.columns(3)
-    a.metric('Accuracy en test', f"{m['efficientnet']['accuracy']:.2%}")
+    a.metric('Aciertos en la prueba (accuracy)', f"{m['efficientnet']['accuracy']:.2%}")
     b.metric('F1 macro en test', f"{m['efficientnet']['f1_macro']:.2%}")
     c.metric('Imágenes de prueba', '1.600')
+    st.caption('El modelo acertó en 1.490 de las 1.600 imágenes de esa prueba. F1 macro resume precisión y detección dando el mismo peso a las cuatro categorías.')
     st.caption('Fuente: salidas guardadas de Certamen1_IA.ipynb. F1 y métricas por clase se transcriben con el redondeo mostrado en el notebook.')
     st.dataframe(pd.DataFrame(m['por_clase']).rename(columns={
         'clase':'Clase','precision':'Precisión','recall':'Recall','f1':'F1','n':'Imágenes'}),

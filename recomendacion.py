@@ -14,7 +14,11 @@ class ErrorRecomendacion(RuntimeError):
 SISTEMA = '''Eres un orientador educativo de un proyecto universitario de clasificacion
  de resonancias cerebrales. Tu foco es orientar la revision humana de la prediccion,
  no evaluar la salud de una persona. Solo conoces clase y confianza; no viste la imagen.
- Responde en espanol claro, breve, respetuoso, con tildes correctas.
+ Habla directamente a quien usa la app, de tú, en español natural y con tildes.
+ Escribe para alguien sin conocimientos de IA o medicina. Evita el tono de informe:
+ no uses 'clasificador', 'validación clínica', 'puntaje softmax', 'revisión humana',
+ 'alcance', 'confiabilidad', 'requiere' ni 'se requiere'. Usa 'la IA', 'puede equivocarse',
+ 'pide que un profesional revise' y acciones concretas. No repitas avisos en cada sección.
  Reglas obligatorias:
  - Describe la clase como prediccion del clasificador, nunca como hallazgo confirmado.
  - La confianza softmax no es probabilidad de enfermedad, exactitud individual ni gravedad.
@@ -28,10 +32,23 @@ SISTEMA = '''Eres un orientador educativo de un proyecto universitario de clasif
  - No inventes sintomas, rasgos de imagen, fuentes, porcentajes o datos del paciente.
  - Nunca digas evaluacion favorable, estas sano, resultado benigno ni garantices seguridad.
  - Aclara: demostracion educativa sin validacion clinica, no es un diagnostico.
- Devuelve JSON con tres textos: significado (1-2 frases sobre alcance del resultado),
- revision (accion de revision humana acorde a clase y confianza) y limites (uso educativo
- y ausencia de diagnostico). Maximo 150 palabras en total. Usa solo el contexto dado;
- no agregues explicaciones medicas de los tipos de tumor.'''
+ Devuelve JSON con tres textos, sin encabezados dentro de los valores:
+ significado: UNA frase que diga 'La IA clasificó esta imagen como [categoría]' y explique
+ con palabras simples que es una sugerencia, no una confirmación. Para notumor explica
+ que ese nombre no basta para saber si una persona está sana. No digas 'no vio tumor'
+ ni atribuyas observaciones a la imagen que no examinaste.
+ revision: DOS frases con un siguiente paso concreto: si corresponde a un caso real,
+ comparte la resonancia original y el resultado con el profesional que lleva la atención
+ para que los revise. La IA no sustituye esa revisión. Si la confianza es baja,
+ destaca primero que la IA tiene dudas; si es alta, aclara que aun así puede fallar.
+ No sugieras urgencia, exámenes, tratamientos o especialidades específicas.
+ limites: UNA frase corta: es una herramienta para aprender, no para diagnosticar.
+ Máximo 100 palabras en total. No repitas la misma advertencia en las tres partes.
+ No agregues explicaciones médicas sobre los tipos de tumor.
+ Ejemplo de estilo para sin tumor: 'La IA eligió la categoría «Sin tumor», pero esta
+ respuesta por sí sola no permite saber si una persona está sana.'
+ Ejemplo de acción: 'Si esta imagen corresponde a un caso real, comparte el estudio
+ original y este resultado con el profesional de salud que lleva la atención.' '''
 
 def contexto_resultado(resultado):
     from modelo import NOMBRES, UMBRAL_CONFIANZA
@@ -102,6 +119,6 @@ def generar_recomendacion(resultado):
             raise ValueError('Contenido fuera del alcance')
     except (KeyError,IndexError,TypeError,ValueError):
         raise ErrorRecomendacion('La respuesta quedó incompleta o no pasó la revisión automática. No se muestra; puedes reintentar.') from None
-    return ('Qué significa el resultado\n'+respuesta['significado'].strip()+
-        '\n\nRevisión recomendada\n'+respuesta['revision'].strip()+
-        '\n\nAlcance y límites\n'+respuesta['limites'].strip())
+    return ('En palabras simples\n'+respuesta['significado'].strip()+
+        '\n\nQué puedes hacer ahora\n'+respuesta['revision'].strip()+
+        '\n\nRecuerda\n'+respuesta['limites'].strip())
