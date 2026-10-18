@@ -73,3 +73,11 @@ Uso académico, sin validación clínica. No hay control fiable de imágenes fue
 - Gemini API: https://ai.google.dev/api/generate-content
 
 Consultar las condiciones de los datos y pesos antes de cualquier uso distinto a la entrega académica. Las licencias de los modelos no se sustituyen por este README.
+
+## Identidad y ejemplos de Neuro JVC
+
+Desarrollado por Javiera, Valentina y Cristian. La interfaz usa blanco hielo, azul petróleo y verde agua, un ícono vectorial propio de cerebro y una guía de tres pasos.
+
+El modo «Usar un ejemplo» incluye cuatro imágenes públicas del archivo del dataset entregado por el grupo. Se seleccionó el primer nombre de archivo de Testing de cada clase en orden alfabético, sin escogerlos por el acierto del modelo. `ejemplos.json` documenta archivo de origen, etiqueta y huella SHA256. La etiqueta de origen y la predicción se presentan separadas y se avisa si no coinciden. Estos ejemplos no constituyen una nueva evaluación de desempeño.
+
+Al subir esta versión a GitHub, incluir `ejemplos.json` y los cuatro archivos `ejemplo_*.jpg` en la raíz junto a `app.py`. Los originales del dataset conservan sus condiciones de uso.

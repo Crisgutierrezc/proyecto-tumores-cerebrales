@@ -1,0 +1,30 @@
+[
+  {
+    "clase": "glioma",
+    "nombre": "Glioma",
+    "archivo": "ejemplo_glioma.jpg",
+    "origen": "Testing/glioma/Te-gl_1.jpg",
+    "sha256": "a629aadd24c31daa08d9e79dce6c1dfcfa77ac95775b4683ec29663c61cbf9dd"
+  },
+  {
+    "clase": "meningioma",
+    "nombre": "Meningioma",
+    "archivo": "ejemplo_meningioma.jpg",
+    "origen": "Testing/meningioma/Te-aug-me_1.jpg",
+    "sha256": "19119b197100eb343eef9eb1899e80a111d35b63e51060c53967a54d3bfacfb8"
+  },
+  {
+    "clase": "notumor",
+    "nombre": "Sin tumor",
+    "archivo": "ejemplo_notumor.jpg",
+    "origen": "Testing/notumor/Te-no_1.jpg",
+    "sha256": "dc8a25950f072b9830140f60f08958ea8bea1716b96d5f8c7b09017bd4ad67e7"
+  },
+  {
+    "clase": "pituitary",
+    "nombre": "Tumor hipofisario",
+    "archivo": "ejemplo_pituitary.jpg",
+    "origen": "Testing/pituitary/Te-pi_1.jpg",
+    "sha256": "79c20f70982dc8182457e7a5b5de051b0da59bc0277d27acefc06f7079531e2f"
+  }
+]
