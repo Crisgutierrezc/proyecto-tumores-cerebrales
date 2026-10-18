@@ -61,3 +61,14 @@ def clasificar(imagen, recursos):
     return {'clase': clases[ganador], 'confianza': scores[ganador],
             'probabilidades': dict(zip(clases, scores)),
             'baja_confianza': scores[ganador] < UMBRAL_CONFIANZA}
+
+
+# Compatibilidad con el archivo de inicio seleccionado en Streamlit Cloud.
+# Las importaciones desde app.py siguen definiendo solo las funciones.
+if __name__ == '__main__':
+    import runpy
+    import sys
+    carpeta = str(Path(__file__).resolve().parent)
+    if carpeta not in sys.path:
+        sys.path.insert(0, carpeta)
+    runpy.run_path(str(Path(__file__).with_name('app.py')), run_name='__main__')
