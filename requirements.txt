@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+streamlit==1.50.0
+torch==2.9.0
+torchvision==0.24.0
+timm==1.0.21
+transformers==4.57.1
+huggingface-hub==0.36.2
+Pillow==11.3.0
+pandas==2.3.3
+altair==5.5.0

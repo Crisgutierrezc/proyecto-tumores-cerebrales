@@ -1,0 +1,43 @@
+{
+  "fuente": "Certamen1_IA.ipynb, salidas de celdas de evaluacion",
+  "modelo_sha256": "251dcb2735b78b5771969532cb5e7688e9afbd703939c4d14e73512c39972671",
+  "n_test": 1600,
+  "efficientnet": {
+    "accuracy": 0.93125,
+    "f1_macro": 0.9294
+  },
+  "clip": {
+    "accuracy": 0.26125,
+    "f1_macro": 0.2107
+  },
+  "por_clase": [
+    {
+      "clase": "Glioma",
+      "precision": 0.9752,
+      "recall": 0.7875,
+      "f1": 0.8714,
+      "n": 400
+    },
+    {
+      "clase": "Meningioma",
+      "precision": 0.8981,
+      "recall": 0.9475,
+      "f1": 0.9221,
+      "n": 400
+    },
+    {
+      "clase": "Sin tumor",
+      "precision": 0.9174,
+      "recall": 1.0,
+      "f1": 0.9569,
+      "n": 400
+    },
+    {
+      "clase": "Tumor hipofisario",
+      "precision": 0.9451,
+      "recall": 0.99,
+      "f1": 0.967,
+      "n": 400
+    }
+  ]
+}
