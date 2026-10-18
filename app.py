@@ -18,17 +18,17 @@ if st.session_state.get('version_orientacion') != 'lenguaje-claro-1':
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Clasificación de tumores cerebrales', page_icon='🧠', layout='wide')
 st.markdown('''<style>
-.stApp {background: #151719;color:#f5f3eb;}
+.stApp {background: #f5f9fc;color:#263746;}
 .block-container {max-width:1180px;padding-top:2.3rem;}
-h1,h2,h3,h4 {color:#f5f3eb;}
-[data-testid="stMetric"] {background:#23272b;padding:18px;border-radius:14px;border:1px solid #3d4247;}
-.encabezado {padding:28px 30px;background:linear-gradient(110deg,#23272b,#30312a);border:1px solid #55503a;border-left:5px solid #f2c94c;border-radius:20px;color:#f5f3eb;margin-bottom:20px;}
-.encabezado h1 {color:#f5f3eb;font-size:2rem;margin:0;}
-.encabezado p {color:#d2d0c7;margin:8px 0 0;}
-.etiqueta {font-size:12px;letter-spacing:2px;font-weight:700;color:#f2c94c;margin-bottom:10px;}
-[data-testid="stSidebar"] {background:#1c1f22;border-right:1px solid #363b40;}
-button[kind="primary"] {color:#17191b!important;font-weight:700;}
-button[kind="primary"]:hover {color:#17191b!important;}
+h1,h2,h3,h4 {color:#164e63;}
+[data-testid="stMetric"] {background:#ffffff;padding:18px;border-radius:14px;border:1px solid #dce7ed;}
+.encabezado {padding:28px 30px;background:linear-gradient(110deg,#e7f3f6,#f2faf8);border:1px solid #d2e8e9;border-left:5px solid #2a9d8f;border-radius:20px;color:#263746;margin-bottom:20px;}
+.encabezado h1 {color:#164e63;font-size:2rem;margin:0;}
+.encabezado p {color:#4d6573;margin:8px 0 0;}
+.etiqueta {font-size:12px;letter-spacing:2px;font-weight:700;color:#18746b;margin-bottom:10px;}
+[data-testid="stSidebar"] {background:#edf4f7;border-right:1px solid #dce7ed;}
+button[kind="primary"] {color:#ffffff!important;font-weight:700;}
+button[kind="primary"]:hover {color:#ffffff!important;}
 </style>''', unsafe_allow_html=True)
 
 @st.cache_resource(show_spinner=False)
@@ -98,7 +98,7 @@ with analizar:
                 st.info('«Sin tumor» es la categoría elegida por la IA. Por sí sola, esta respuesta no permite saber si una persona está sana.')
             st.markdown('**Cómo se repartió la confianza entre las categorías**')
             tabla = pd.DataFrame([{'Categoría':NOMBRES[c], 'Confianza':p} for c,p in resultado['probabilidades'].items()])
-            barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#f2c94c').encode(
+            barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#2a9d8f').encode(
                 x=alt.X('Confianza:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%'), title='Confianza del modelo (%)'),
                 y=alt.Y('Categoría:N',sort=None,title=None),
                 tooltip=['Categoría',alt.Tooltip('Confianza:Q', format='.2%')]).properties(height=200)
@@ -175,3 +175,4 @@ with explicar:
     st.link_button('Ver código del proyecto', 'https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales')
 
 st.caption('Proyecto académico · Brain Tumor MRI Dataset · Resultados para exploración y aprendizaje')
+
