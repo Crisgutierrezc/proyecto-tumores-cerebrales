@@ -243,13 +243,10 @@ with desempeno:
     <article class="modelo-comparado modelo-principal"><span class="modelo-insignia">MODELO DE NEURO JVC</span><h3>EfficientNet-B0</h3><p class="modelo-descripcion">Parte de pesos preentrenados y se adapta a las cuatro categorías mediante fine-tuning.</p><div class="modelo-cifras"><div><span>Aciertos · accuracy</span><strong>{porcentaje_comparacion(m['efficientnet']['accuracy'])}</strong></div><div><span>F1 macro</span><strong>{porcentaje_comparacion(m['efficientnet']['f1_macro'])}</strong></div></div><p class="modelo-pie">Es el modelo que analiza las imágenes en esta aplicación.</p></article>
     </div><div class="conclusion-comparacion"><strong>¿Qué observamos?</strong> EfficientNet-B0 obtuvo {diferencia:.0f} puntos porcentuales más de accuracy que CLIP en esta prueba. Por eso lo elegimos para la aplicación.</div>""", unsafe_allow_html=True)
     st.caption('División: 4.760 entrenamiento / 840 validación / 1.600 test. Sin identificadores de paciente no se garantiza independencia entre cortes; las métricas pueden ser optimistas y no implican validación clínica.')
-    with st.expander('Trazabilidad del modelo'):
-        actual = sha256_archivo(BASE / 'brain_tumor_efficientnet_b0.pt')
-        st.code(actual, language=None)
-        if actual != m['modelo_sha256']:
-            st.error('El archivo del modelo cambió. Estas métricas podrían no corresponder: actualiza la evaluación antes de presentar.')
-        else:
-            st.caption('Huella del archivo recibido junto al notebook, conservada para detectar reemplazos. No constituye una reevaluación independiente.')
+    # Comprobación interna: avisar solo si el archivo ya no corresponde al registrado.
+    actual = sha256_archivo(BASE / 'brain_tumor_efficientnet_b0.pt')
+    if actual != m['modelo_sha256']:
+        st.error('El archivo del modelo cambió. Estas métricas podrían no corresponder: actualiza la evaluación antes de presentar.')
 
 with explicar:
     st.subheader('Neuro JVC: aprender a mirar una predicción con criterio')
