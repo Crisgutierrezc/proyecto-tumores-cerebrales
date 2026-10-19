@@ -294,7 +294,7 @@ with explicar:
     ''')
     st.markdown('**Límites:** solo cuatro categorías, imágenes 2D similares a las de entrenamiento, sin localización ni segmentación del tumor y sin validación clínica externa. La app no detecta automáticamente si subiste una fotografía u otra imagen ajena al problema: también podría asignarle una clase.')
     st.markdown('**Para el grupo:** `app.py` organiza la interfaz; `modelo.py` carga y ejecuta EfficientNet; `recomendacion.py` consulta el LLM; `metricas_test.json` conserva los resultados del notebook.')
-    st.link_button('Ver código del proyecto', 'https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales')
+    st.link_button('Ver repositorio en GitHub', 'https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales')
 
 st.divider()
 st.caption('Neuro JVC · Javiera, Valentina y Cristian · Proyecto académico con Brain Tumor MRI Dataset')
