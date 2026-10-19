@@ -32,6 +32,7 @@ h1,h2,h3,h4 {color:#164e63;}
 .marca-cerebro {width:68px;min-width:58px;color:#25877e;}
 .equipo {font-size:0.78rem;color:#526b79;margin-top:5px;}
 [data-testid="stMetricValue"] {white-space:normal;font-size:1.4rem;}
+[data-testid="stMetricValue"] > div {white-space:normal;overflow:visible;text-overflow:clip;font-size:1.25rem;line-height:1.35;}
 [data-testid="stMetric"] {padding:13px;}
 .pasos {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0 24px;}
 .paso {padding:16px 18px;border:1px solid #dce7ed;border-radius:14px;background:#fff;color:#4d6573;font-size:0.9rem;}
