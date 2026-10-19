@@ -1,89 +1,111 @@
-# Clasificación de tumores cerebrales en resonancias magnéticas
+# Neuro JVC · Clasificación de resonancias cerebrales
 
-Aplicación educativa en Streamlit para el punto 4.3. Utiliza el checkpoint entrenado en el punto 4.2; no reentrena ni usa CLIP para la predicción de la app.
+Proyecto académico de **Javiera Gracía, Cristian Gutiérrez y Valentina Jiménez** para estudiantes y docentes. Permite cargar una resonancia, explorar la clasificación de EfficientNet-B0 y obtener una explicación educativa de Gemini.
 
-## Publicar paso a paso
+- **App:** https://proyecto-tumores-cerebrales.streamlit.app/
+- **Repositorio:** https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales
+- **Notebook ejecutado:** [notebooks/entrenamiento.ipynb](notebooks/entrenamiento.ipynb)
 
-1. Descomprime el ZIP en tu computador.
-2. En el repositorio `Crisgutierrezc/proyecto-tumores-cerebrales`, abre **Code → Add file → Upload files**.
-3. Sube **los archivos que están dentro de esta carpeta**, no el ZIP ni la carpeta contenedora. Deben quedar en la raíz: `app.py`, `modelo.py`, `recomendacion.py`, `requirements.txt`, `metricas_test.json`, `matriz_confusion.png`, `brain_tumor_efficientnet_b0.pt` y este README. Arrastra también la carpeta `.streamlit` con su archivo `config.toml`, que define el tema visual y limita cargas a 10 MB. Si no puedes subir la carpeta, crea en GitHub un archivo llamado `.streamlit/config.toml` y copia su contenido.
-4. Confirma con **Commit changes**. El `.pt` pesa aproximadamente 16 MB y se puede subir desde la web de GitHub.
-5. En Streamlit Community Cloud, elige **Create app → Deploy a public app from GitHub** (el texto puede variar).
-6. Repositorio: `Crisgutierrezc/proyecto-tumores-cerebrales`; rama: la que contiene los archivos, normalmente `main`; archivo principal: `app.py`.
-7. En configuración avanzada, selecciona **Python 3.12**. Añade GEMINI_API_KEY en Secrets antes de probar la orientación.
-8. Pulsa **Deploy** y espera a que instale las dependencias. Copia el enlace `.streamlit.app`.
-9. Prueba una imagen del dataset y pulsa también **Generar recomendación con IA**. El punto del LLM solo se considera verificado al obtener una respuesta en el servidor publicado.
+Prototipo educativo, sin validación clínica. No confirma ni descarta un diagnóstico y no debe utilizarse para tomar decisiones médicas.
 
-## Integración Gemini API (4.5)
+## Datos: origen y licencia
 
-La orientación usa Google Gemini por API. Se envían solo clase, confianza y contexto educativo; no se envía imagen, ruta, nombre ni datos personales. La respuesta se organiza en significado, revisión recomendada y límites. El prompt exige revisión humana para baja confianza (<80 %, umbral orientativo) y prohíbe diagnósticos, gravedad, tratamientos, falsa tranquilidad y afirmaciones inventadas. Es orientación de revisión de la predicción, no una evaluación de salud.
+**Brain Tumor MRI Dataset**, publicado en Kaggle por **Masoud Nickparvar**, reúne imágenes de Figshare, SARTAJ y Br35H. Se obtuvo mediante `kagglehub.dataset_download("masoudnickparvar/brain-tumor-mri-dataset")`.
 
-Guardar GEMINI_API_KEY exclusivamente en Secrets de Streamlit o variable de entorno. Opcional: GEMINI_MODEL permite configurar otro modelo compatible; valor por defecto gemini-3.5-flash-lite. Nunca subir una clave a GitHub. Para desarrollo local puede usarse .streamlit/secrets.toml, que debe estar excluido del repositorio.
+- [Fuente y atribución: Masoud Nickparvar, Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset).
+- Licencia indicada en Kaggle: **Attribution 4.0 International (CC BY 4.0)**, consultada el 19 de octubre de 2026. [Licencia](https://creativecommons.org/licenses/by/4.0/).
+- Figshare: https://figshare.com/articles/dataset/brain_tumor_dataset/1512427
+- SARTAJ: https://www.kaggle.com/sartajbhuvaji/brain-tumor-classification-mri
+- Br35H: https://www.kaggle.com/datasets/ahmedhamada0/brain-tumor-detection
 
-La llamada usa la API REST oficial, timeout y errores seguros de clave/permisos/cuota. No activa facturación ni sustituye fallos por respuestas simuladas. La disponibilidad y cuota dependen de la cuenta de Google. Las respuestas incompletas no se presentan como orientación válida. El filtro automático no garantiza detectar todos los errores.
+El conteo registrado en las salidas del notebook del grupo es **7.200 imágenes**, con **1.800 por clase**. No hay desbalance por cantidad entre clases. Corresponde a la versión descargada y puede diferir de descripciones de otras versiones.
 
-## Ejecutar en un computador
+| Categoría | Etiqueta | Entrenamiento | Validación | Prueba | Total |
+|---|---|---:|---:|---:|---:|
+| Glioma | `glioma` | 1.190 | 210 | 400 | 1.800 |
+| Meningioma | `meningioma` | 1.190 | 210 | 400 | 1.800 |
+| Sin tumor | `notumor` | 1.190 | 210 | 400 | 1.800 |
+| Tumor hipofisario | `pituitary` | 1.190 | 210 | 400 | 1.800 |
+| **Total** | | **4.760** | **840** | **1.600** | **7.200** |
 
-Con Python 3.12 y una terminal situada en esta carpeta:
+Se dividió únicamente `Training` original (5.600 imágenes) en **85 % entrenamiento y 15 % validación**, estratificando por clase con `random_state=42`. `Testing` permaneció intacto. La época se eligió mediante F1 macro de validación; test se reservó para la evaluación final.
+
+**Limitaciones:** sin identificadores de paciente no se garantiza independencia entre cortes. Rutas distintas no prueban ausencia de duplicados ni de imágenes del mismo paciente. Las fuentes, etiquetas y equipos pueden introducir sesgos. El equilibrio entre clases no garantiza representatividad poblacional ni desempeño clínico.
+
+## Modelo, comparación y métricas
+
+**EfficientNet-B0 de timm** parte de pesos de ImageNet, con cuatro salidas y fine-tuning de todos sus parámetros. **CLIP zero-shot** clasifica por similitud con descripciones de texto sin entrenarse con las imágenes del proyecto. Ambos se evaluaron con las mismas imágenes y métricas de prueba.
+
+| Modelo | Accuracy en test | F1 macro |
+|---|---:|---:|
+| CLIP zero-shot | 26,125 % | 0,2107 |
+| EfficientNet-B0 con fine-tuning | 93,125 % | 0,9294 |
+
+EfficientNet-B0 acertó en **1.490 de 1.600 imágenes**, superando a CLIP en 67 puntos porcentuales de accuracy; por eso se eligió para la app. El notebook incluye precisión, recall, F1 por clase y matrices de confusión. Los resultados provienen de sus salidas guardadas; F1 y métricas por clase conservan su redondeo. No se repitió el entrenamiento ni la evaluación completa al preparar la app.
+
+**Error más costoso (4.2):** 36 de las 1.200 imágenes etiquetadas con algún tumor se clasificaron como «sin tumor» (3 %). El recall binario de tumor fue 97 %: agrupa los tipos tumorales y no exige acertar el subtipo. Un falso negativo podría dar falsa tranquilidad si se tratara como diagnóstico. Confundir tipos también importa. La interpretación se conserva en el notebook para la exposición, aunque se retiró su recuadro de la interfaz.
+
+El `.pt` exportado contiene pesos, arquitectura, orden de clases y preprocesamiento. La app conserva la transformación de evaluación y usa `eval()` y `torch.inference_mode()`. El notebook comprueba la recarga del archivo exportado.
+
+## Uso de la app
+
+1. Carga una imagen JPG o PNG de hasta 10 MB.
+2. Pulsa **Clasificar imagen**: se muestran clase, confianza y porcentajes de las cuatro categorías.
+3. Pulsa **Generar recomendación con IA** para obtener una explicación de Gemini.
+4. Consulta **Resultados del modelo** para ver métricas, matriz y comparación, o **Conoce el proyecto** para revisar metodología y límites.
+
+La interfaz usa los azules de la presentación, un ícono propio y una barra lateral informativa. Los ejemplos precargados se retiraron; las imágenes públicas de muestra se conservan para pruebas manuales. Cambiar o retirar la imagen borra el resultado y la explicación anteriores.
+
+La confianza softmax no es probabilidad de enfermedad ni accuracy individual. El umbral de baja confianza del 80 % es orientativo y educativo. La app avisa y pide revisión cuando la confianza es baja. No tiene un detector fiable de imágenes ajenas al problema y también podría asignarles una clase.
+
+## Gemini API y protección de la clave
+
+`recomendacion.py` consulta la API REST de Google Gemini. Envía únicamente texto con clase, confianza y contexto educativo: **no envía la imagen, su nombre ni su ruta**. Gemini no examina la resonancia ni verifica la clasificación.
+
+El prompt pide lenguaje sencillo, limita el tema, prohíbe diagnósticos y tratamientos, explica la incertidumbre y solicita revisión cuando la confianza es baja. «Sin tumor» no descarta enfermedad. Solicita un JSON con `significado`, `revision` y `limites`, que se presenta en tres apartados. Las comprobaciones de estructura y contenido son básicas y no detectan todos los errores del LLM. Un fallo de API no se sustituye por una respuesta inventada.
+
+**`GEMINI_API_KEY` se guarda en Secrets de Streamlit Cloud**, o en una variable de entorno. Localmente se puede usar `.streamlit/secrets.toml`, excluido por `.gitignore`. Nunca subir claves a GitHub. `GEMINI_MODEL` permite configurar el modelo; su valor predeterminado está en `recomendacion.py`.
+
+La imagen se procesa en el servidor de Streamlit durante la sesión y no se añade a un entrenamiento. Utilizar imágenes públicas de prueba sin nombres ni datos personales; evitar imágenes de pacientes reales.
+
+## Archivos y ejecución
+
+| Archivo o carpeta | Función |
+|---|---|
+| `app.py` | Interfaz, carga y estado de sesión |
+| `modelo.py` | Validación de imágenes, carga del modelo e inferencia |
+| `recomendacion.py` | Prompt, API de Gemini y comprobaciones |
+| `notebooks/entrenamiento.ipynb` | Notebook del grupo con resultados visibles |
+| `brain_tumor_efficientnet_b0.pt` | Pesos y metadatos, incluidas las clases |
+| `metricas_test.json`, `matriz_confusion.png` | Resultados del notebook |
+| `ejemplo_*.jpg`, `ejemplos.json` | Cuatro imágenes públicas y su procedencia |
+| `requirements.txt` | Dependencias de la app |
+| `.streamlit/config.toml` | Tema y límite de carga |
+
+Los pesos y las imágenes de muestra siguen en la raíz en esta versión. No se incluye el dataset completo. Los ejemplos conservan la atribución y condiciones de sus fuentes; no fueron elegidos por el acierto del modelo.
+
+Para la app, usar **Python 3.12**:
 
 ```sh
 python -m venv .venv
-# Windows: .venv\Scripts\activate
+# Windows: .venv/Scripts/activate
 # macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Requisitos del profesor
+Configurar la clave antes de probar Gemini. Para entrenar, abrir el notebook en Colab con GPU; sus dependencias se instalan en sus celdas.
 
-| Requisito | Implementación |
-|---|---|
-| Carga de imagen | JPG/PNG, vista previa y botón para clasificar |
-| Clase, confianza y todas las probabilidades | Nombre legible, confianza softmax, barras y tabla |
-| Desempeño real de prueba | Pestaña propia, accuracy, F1 macro, por clase y matriz |
-| Botón que envía el resultado a un LLM | Clase y confianza a Gemini por API; clave en Secrets |
-| Uso responsable | Aviso permanente, alerta bajo 80 %, revisión humana |
+En Streamlit Cloud seleccionar repositorio, rama `main`, Python 3.12 y preferentemente `app.py`. El despliegue existente utiliza `modelo.py`, que conserva una entrada compatible para ejecutar `app.py`. Guardar la clave en Secrets. Antes de entregar, probar clasificación y Gemini desde otro computador o celular.
 
-El umbral 80 % es una regla de interfaz orientativa, no un umbral clínico validado. La confianza de una imagen no equivale a accuracy ni a probabilidad clínica.
+## Declaración del uso de IA
 
-## Resultados recibidos
+Se utilizaron **ChatGPT y Codex** como apoyo para generar y comentar código, adaptar el notebook al problema, construir y ajustar la interfaz, integrar la API y documentar y revisar el trabajo. **Google Gemini** genera las explicaciones educativas dentro de la app; no clasifica los píxeles ni calcula las métricas.
 
-Fuente: salidas guardadas de `Certamen1_IA.ipynb`, entregado con el archivo `.pt`.
+El grupo es responsable de revisar, comprender y explicar el código, las decisiones y las limitaciones. Las métricas proceden de las salidas ejecutadas del notebook entregado; no son resultados inventados por el LLM.
 
-- Training: 4.760 imágenes para entrenar y 840 para validar; Testing: 1.600 imágenes.
-- EfficientNet-B0: accuracy 93,125 % (1.490/1.600); F1 macro mostrado en el notebook 0,9294.
-- CLIP: accuracy 26,125 % (418/1.600); F1 macro mostrado 0,2107.
-- 36 de 1.200 imágenes tumorales predichas como sin tumor; recall binario de tumor 97 %.
+## Fuentes técnicas
 
-Las cifras por clase fueron transcritas desde las salidas con cuatro decimales. La matriz PNG proviene del notebook. No se ha repetido la evaluación completa sobre el dataset al construir la app. Se incluye una huella SHA256 del `.pt` recibido para detectar sustituciones posteriores, no para probar por sí sola la correspondencia clínica o experimental.
-
-## Colaboración y presentación
-
-Los colaboradores pueden editar archivos desde GitHub o trabajar en ramas y proponer pull requests. Las modificaciones a la rama desplegada actualizan la app. Mantener juntos el modelo, las clases, el preprocesamiento y sus métricas. No subir claves, datos personales ni imágenes de pacientes reales.
-
-Para explicar el código: Streamlit vuelve a ejecutar `app.py` con cada interacción; `st.session_state` conserva el resultado por sesión y lo borra si cambia la imagen. `st.cache_resource` conserva el clasificador cargado. El LLM se consulta por API y no recibe píxeles; la clave se lee de Secrets sin mostrarse. El modelo de clasificación siempre usa `eval()` y `torch.inference_mode()`.
-
-## Limitaciones y fuentes
-
-Uso académico, sin validación clínica. No hay control fiable de imágenes fuera de dominio ni garantía de división independiente por paciente. El LLM puede generar errores: su respuesta siempre se presenta como texto que requiere revisión. Un filtro conservador descarta algunas interpretaciones clínicas indebidas; no garantiza detectar todos los errores. Los avisos de revisión profesional permanecen visibles aunque falle la generación.
-
-- Dataset: https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset
-- Streamlit: https://docs.streamlit.io/deploy/streamlit-community-cloud
 - timm: https://huggingface.co/docs/timm/quickstart
-- Gemini API: https://ai.google.dev/api/generate-content
-
-Consultar las condiciones de los datos y pesos antes de cualquier uso distinto a la entrega académica. Las licencias de los modelos no se sustituyen por este README.
-
-## Identidad y ejemplos de Neuro JVC
-
-Desarrollado por Javiera, Valentina y Cristian. La interfaz usa azul marino, azul intenso, celeste y fondo claro, siguiendo la presentación del grupo, un ícono vectorial propio de cerebro y una guía de tres pasos.
-
-El modo «Usar un ejemplo» incluye cuatro imágenes públicas del archivo del dataset entregado por el grupo. Se seleccionó el primer nombre de archivo de Testing de cada clase en orden alfabético, sin escogerlos por el acierto del modelo. `ejemplos.json` documenta archivo de origen, etiqueta y huella SHA256. La etiqueta de origen y la predicción se presentan separadas y se avisa si no coinciden. Estos ejemplos no constituyen una nueva evaluación de desempeño.
-
-Al subir esta versión a GitHub, incluir `ejemplos.json` y los cuatro archivos `ejemplo_*.jpg` en la raíz junto a `app.py`. Los originales del dataset conservan sus condiciones de uso.
-
-### Interfaz para estudiantes y docentes
-
-Los ejemplos se abren por defecto; la carga propia queda como alternativa. El encabezado es compacto y la barra lateral se inicia cerrada para priorizar imagen y resultado. La etiqueta del dataset y la predicción se muestran juntas, con aviso de coincidencia o desacuerdo. Confianza, accuracy y F1 tienen ayudas breves. La miniatura visual no cambia la imagen que recibe EfficientNet.
-
-Gemini orienta el aprendizaje y la revisión con el docente. En modo ejemplo recibe también la etiqueta pública de referencia y si coincide con la predicción, sin recibir píxeles ni ruta del archivo. Para casos reales se mantiene la necesidad de revisión por un profesional de salud.
+- Gemini: https://ai.google.dev/api/generate-content
+- Streamlit: https://docs.streamlit.io/
