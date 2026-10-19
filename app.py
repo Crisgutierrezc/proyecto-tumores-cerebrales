@@ -18,6 +18,16 @@ if st.session_state.get('version_orientacion') != 'aprendizaje-2':
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('''<style>
+.introduccion {margin:18px 0 20px;max-width:920px;}
+.introduccion h2 {font-size:1.35rem;margin:0 0 8px;letter-spacing:-0.3px;}
+.introduccion p {font-size:1rem;line-height:1.7;color:#4e6180;margin:0;}
+.resumen-proyecto {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px;}
+.tarjeta-resumen {background:white;border:1px solid #dce3f2;border-top:3px solid #a9c7f2;border-radius:14px;padding:20px;}
+.tarjeta-resumen:nth-child(2) {border-top-color:#a9a7ec;}
+.tarjeta-resumen:nth-child(3) {border-top-color:#84d4ec;}
+.sobretitulo {font-size:.7rem;letter-spacing:1.2px;color:#536888;font-weight:700;}
+.tarjeta-resumen h3 {font-size:1.05rem;line-height:1.4;margin:9px 0;color:#12233f;}
+.tarjeta-resumen p {font-size:.9rem;line-height:1.6;color:#4e6180;margin:0;}
 .stApp {background: #f5f7fc;color:#12233f;}
 .block-container {max-width:1180px;padding-top:4.8rem;padding-bottom:3rem;}
 h1,h2,h3,h4 {color:#24558b;}
@@ -47,6 +57,7 @@ button[kind="primary"]:not(:disabled) {color:#ffffff!important;font-weight:700;}
 [data-testid="stFileUploaderDropzone"] button {font-size:0!important;}
 [data-testid="stFileUploaderDropzone"] button::after {content:"Seleccionar imagen";font-size:14px;}
 .stTabs [role="tab"] {height:auto;min-height:44px;white-space:normal;}
+@media(max-width:760px){.resumen-proyecto {grid-template-columns:1fr;gap:10px;}.tarjeta-resumen {padding:16px;}}
 @media(max-width:640px){.block-container {padding-top:4.6rem;padding-left:1rem;padding-right:1rem;}.pasos {grid-template-columns:1fr;gap:8px;}.marca-cerebro {display:none;}.encabezado h1 {font-size:2.2rem;}.encabezado {padding:22px;}}
 </style>''', unsafe_allow_html=True)
 
@@ -60,15 +71,21 @@ def metricas():
 
 st.markdown('''<div class="encabezado"><div><div class="etiqueta">RESONANCIAS CEREBRALES · IA EDUCATIVA</div>
 <h1>Neuro JVC</h1>
-<p>Un espacio para aprender cómo clasifica la IA las resonancias cerebrales.</p>
+<p>Explora una resonancia. Comprende la predicción. Aprende con IA.</p>
 <div class="equipo">Desarrollado por Javiera, Valentina y Cristian</div></div>
 <svg class="marca-cerebro" viewBox="0 0 100 100" role="img" aria-label="Ícono de cerebro de Neuro JVC" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
 <rect x="3" y="3" width="94" height="94" rx="26" fill="#203e72" stroke="none"/>
 <path d="M49 24c-8-12-25-5-25 7-12 3-15 19-7 27-7 14 5 27 17 24 5 8 15 4 15-5V24zm2 0c8-12 25-5 25 7 12 3 15 19 7 27 7 14-5 27-17 24-5 8-15 4-15-5V24z"/>
 <path d="M24 31c10-3 14 5 12 12M17 58c6-8 14-6 18-1m-1 25c-4-7-2-14 5-17M76 31c-10-3-14 5-12 12m19 15c-6-8-14-6-18-1m1 25c4-7 2-14-5-17M36 43l6 5m22-5-6 5"/>
 </svg></div>''', unsafe_allow_html=True)
-st.caption('Para estudiantes y docentes · 1. Elige un ejemplo → 2. Compara la predicción → 3. Explícala con Gemini')
-st.warning('Proyecto educativo: la IA puede equivocarse. Sus respuestas no son un diagnóstico.')
+st.markdown("""<div class="introduccion"><h2>¿Qué puedes descubrir con Neuro JVC?</h2>
+<p>Esta aplicación educativa analiza imágenes de resonancia cerebral y las clasifica en cuatro categorías: <strong>glioma, meningioma, sin tumor y tumor hipofisario</strong>. Puedes probar ejemplos del proyecto o cargar una imagen y explorar cómo responde el modelo.</p></div>
+<div class="resumen-proyecto">
+<div class="tarjeta-resumen"><span class="sobretitulo">01 · EXPLORA</span><h3>Una imagen, cuatro categorías</h3><p>EfficientNet-B0 analiza la imagen y muestra su predicción y la confianza asignada a cada categoría.</p></div>
+<div class="tarjeta-resumen"><span class="sobretitulo">02 · COMPARA</span><h3>Resultados que puedes revisar</h3><p>Acertó en 1.490 de 1.600 imágenes de prueba. Revisa las métricas y los errores en «Resultados del modelo».</p></div>
+<div class="tarjeta-resumen"><span class="sobretitulo">03 · COMPRENDE</span><h3>Una explicación con Gemini</h3><p>Después del análisis, pide una explicación sencilla para interpretar la respuesta y sus límites.</p></div>
+</div>""", unsafe_allow_html=True)
+st.info('Uso educativo para estudiantes y docentes. La predicción puede ser incorrecta y no confirma ni descarta un diagnóstico médico.')
 
 with st.sidebar:
     st.header('🧠 Neuro JVC')
@@ -85,12 +102,13 @@ with st.sidebar:
     st.caption('Para probarla, usa imágenes de la base del proyecto. Evita subir nombres u otros datos que identifiquen a una persona.')
     st.caption('La aplicación no añade tus imágenes a entrenamiento. El archivo se procesa en el servidor durante la sesión.')
 
-analizar, desempeno, explicar = st.tabs(['Analizar imagen', 'Qué tan bien funciona', 'Sobre el proyecto'])
+analizar, desempeno, explicar = st.tabs(['Explorar una imagen', 'Resultados del modelo', 'Conoce el proyecto'])
 
 with analizar:
     izquierda, derecha = st.columns([1,1.15], gap='large')
     with izquierda:
-        st.subheader('1. Elige una resonancia')
+        st.subheader('1. Selecciona una imagen')
+        st.caption('Empieza con un ejemplo del dataset o carga un archivo JPG o PNG.')
         modo = st.radio('¿Cómo quieres probar Neuro JVC?', ['Usar un ejemplo', 'Subir imagen'], horizontal=True, key='modo_neuro_v2')
         ejemplo = None
         if modo == 'Subir imagen':
@@ -134,7 +152,7 @@ with analizar:
                 st.error('No se pudo cargar o ejecutar el modelo. Revisa que el archivo .pt esté en el repositorio junto a app.py.')
 
     with derecha:
-        st.subheader('2. Mira el resultado')
+        st.subheader('2. Revisa la predicción')
         resultado = st.session_state.get('resultado')
         if resultado is None:
             st.info('Pulsa «Clasificar imagen» para comparar la respuesta de la IA con la etiqueta del ejemplo. También puedes subir tu propia imagen.')
@@ -170,7 +188,7 @@ with analizar:
                              hide_index=True, width='stretch')
 
     st.divider()
-    st.subheader('3. Entiende esta predicción')
+    st.subheader('3. Comprende el resultado con Gemini')
     st.write('Pide a Gemini una explicación para el ejercicio: qué eligió la IA, cómo interpretar su confianza y qué revisar con tu docente.')
     st.caption('Gemini recibe solo la categoría, el porcentaje de confianza y el contexto del proyecto. No recibe tu imagen ni su nombre.')
     if st.button('Generar recomendación con IA', disabled=st.session_state.get('resultado') is None):
