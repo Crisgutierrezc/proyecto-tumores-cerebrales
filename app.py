@@ -16,8 +16,14 @@ if st.session_state.get('version_orientacion') != 'aprendizaje-2':
     st.session_state.pop('recomendacion', None)
     st.session_state['version_orientacion'] = 'aprendizaje-2'
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
-st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
+st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='auto')
 st.markdown('''<style>
+.resultado-destacado {border:1px solid #b6c9e8;border-left:4px solid #315fa8;border-radius:16px;padding:24px;background:linear-gradient(135deg,#fff,#edf3ff);margin:14px 0;}
+.resultado-etiqueta {font-size:.67rem;letter-spacing:1px;font-weight:700;color:#536888;}
+.resultado-destacado h3 {font-size:1.8rem;line-height:1.25;color:#12233f;margin:12px 0 20px;overflow-wrap:anywhere;}
+.resultado-confianza {display:flex;align-items:center;gap:14px;border-top:1px solid #dce3f2;padding-top:16px;flex-wrap:wrap;}
+.resultado-confianza strong {font-size:1.8rem;color:#24558b;}
+.resultado-confianza span {font-size:.85rem;color:#536888;}
 .comparacion-modelos {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:22px 0 16px;}
 .modelo-comparado {background:#fff;border:1px solid #dce3f2;border-radius:18px;padding:26px;}
 .modelo-principal {background:linear-gradient(145deg,#fff,#eef3ff);border-color:#a8bbdf;}
@@ -104,13 +110,7 @@ st.markdown('''<div class="encabezado"><div><div class="etiqueta">RESONANCIAS CE
 <path d="M49 24c-8-12-25-5-25 7-12 3-15 19-7 27-7 14 5 27 17 24 5 8 15 4 15-5V24zm2 0c8-12 25-5 25 7 12 3 15 19 7 27 7 14-5 27-17 24-5 8-15 4-15-5V24z"/>
 <path d="M24 31c10-3 14 5 12 12M17 58c6-8 14-6 18-1m-1 25c-4-7-2-14 5-17M76 31c-10-3-14 5-12 12m19 15c-6-8-14-6-18-1m1 25c4-7 2-14-5-17M36 43l6 5m22-5-6 5"/>
 </svg></div>''', unsafe_allow_html=True)
-st.markdown("""<div class="introduccion"><h2>¿Qué puedes descubrir con Neuro JVC?</h2>
-<p>Esta aplicación educativa analiza imágenes de resonancia cerebral y las clasifica en cuatro categorías: <strong>glioma, meningioma, sin tumor y tumor hipofisario</strong>. Carga una imagen y explora cómo responde el modelo.</p></div>
-<div class="resumen-proyecto">
-<div class="tarjeta-resumen"><span class="sobretitulo">01 · EXPLORA</span><h3>Una imagen, cuatro categorías</h3><p>EfficientNet-B0 analiza la imagen y muestra su predicción y la confianza asignada a cada categoría.</p></div>
-<div class="tarjeta-resumen"><span class="sobretitulo">02 · COMPARA</span><h3>Resultados que puedes revisar</h3><p>Acertó en 1.490 de 1.600 imágenes de prueba. Revisa las métricas y los errores en «Resultados del modelo».</p></div>
-<div class="tarjeta-resumen"><span class="sobretitulo">03 · COMPRENDE</span><h3>Una explicación con Gemini</h3><p>Después del análisis, pide una explicación sencilla para interpretar la respuesta y sus límites.</p></div>
-</div>""", unsafe_allow_html=True)
+st.caption('Clasifica imágenes en cuatro categorías: glioma, meningioma, sin tumor y tumor hipofisario. Carga una resonancia y explora la predicción; Gemini puede ayudarte a entenderla.')
 st.info('Uso educativo para estudiantes y docentes. La predicción puede ser incorrecta y no confirma ni descarta un diagnóstico médico.')
 
 with st.sidebar:
@@ -169,8 +169,8 @@ with analizar:
         if resultado is None:
             st.info('Carga una imagen y pulsa «Clasificar imagen». Aquí verás la categoría predicha y la confianza del modelo.')
         else:
-            st.metric('Predicción de la IA', NOMBRES[resultado['clase']])
-            st.metric('Confianza del modelo', f"{resultado['confianza']:.1%}", help='Cuánto favorece el modelo su opción elegida frente a las otras tres. No mide la probabilidad de enfermedad ni garantiza un acierto.')
+            confianza_visible = f"{resultado['confianza'] * 100:.1f}".replace('.', ',')
+            st.markdown(f"""<div class="resultado-destacado"><span class="resultado-etiqueta">PREDICCIÓN DEL MODELO</span><h3>{NOMBRES[resultado['clase']]}</h3><div class="resultado-confianza"><strong>{confianza_visible} %</strong><span>Confianza del modelo</span></div></div>""", unsafe_allow_html=True)
             st.caption('Este porcentaje indica cuánto favorece el modelo esta categoría frente a las otras tres. No indica la probabilidad de tener un tumor ni garantiza que la respuesta sea correcta.')
             if resultado['baja_confianza']:
                 st.warning('Confianza baja: menor al 80 %. Revisa este caso con tu docente antes de sacar conclusiones. Si fuera un caso real, necesita revisión profesional. El umbral es orientativo, no médico.')
