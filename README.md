@@ -98,11 +98,13 @@ Configurar la clave antes de probar Gemini. Para entrenar, abrir el notebook en 
 
 En Streamlit Cloud seleccionar repositorio, rama `main`, Python 3.12 y preferentemente `app.py`. El despliegue existente utiliza `modelo.py`, que conserva una entrada compatible para ejecutar `app.py`. Guardar la clave en Secrets. Antes de entregar, probar clasificación y Gemini desde otro computador o celular.
 
-## Declaración del uso de IA
+## Uso de inteligencia artificial
 
-Se utilizaron **ChatGPT y Codex** como apoyo para generar y comentar código, adaptar el notebook al problema, construir y ajustar la interfaz, integrar la API y documentar y revisar el trabajo. **Google Gemini** genera las explicaciones educativas dentro de la app; no clasifica los píxeles ni calcula las métricas.
+Durante el desarrollo utilizamos **ChatGPT, Codex y Claude** como herramientas de apoyo para escribir y comentar código, adaptar el notebook, diseñar la interfaz, integrar la API y revisar la documentación.
 
-El grupo es responsable de revisar, comprender y explicar el código, las decisiones y las limitaciones. Las métricas proceden de las salidas ejecutadas del notebook entregado; no son resultados inventados por el LLM.
+**Google Gemini** genera las explicaciones educativas que muestra la app a partir del resultado del modelo. No analiza la imagen ni calcula las métricas.
+
+Como equipo, revisamos el código y asumimos la responsabilidad de comprender y explicar su funcionamiento, las decisiones tomadas y sus limitaciones. Las métricas presentadas corresponden a los resultados guardados tras ejecutar el notebook entregado.
 
 ## Fuentes técnicas
 
