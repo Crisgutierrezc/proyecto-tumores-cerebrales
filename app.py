@@ -12,25 +12,27 @@ from recomendacion import generar_recomendacion, LLM_ID, ErrorRecomendacion
 
 BASE = Path(__file__).resolve().parent
 # Al cambiar el prompt, no conservar en pantalla una orientación de la versión anterior.
-if st.session_state.get('version_orientacion') != 'lenguaje-claro-1':
+if st.session_state.get('version_orientacion') != 'aprendizaje-2':
     st.session_state.pop('recomendacion', None)
-    st.session_state['version_orientacion'] = 'lenguaje-claro-1'
+    st.session_state['version_orientacion'] = 'aprendizaje-2'
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
-st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide')
+st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('''<style>
 .stApp {background: #f5f9fc;color:#263746;}
-.block-container {max-width:1180px;padding-top:2.3rem;}
+.block-container {max-width:1180px;padding-top:1.3rem;}
 h1,h2,h3,h4 {color:#164e63;}
 [data-testid="stMetric"] {background:#ffffff;padding:18px;border-radius:14px;border:1px solid #dce7ed;}
-.encabezado {padding:28px 30px;background:linear-gradient(110deg,#e7f3f6,#f2faf8);border:1px solid #d2e8e9;border-left:5px solid #2a9d8f;border-radius:20px;color:#263746;margin-bottom:20px;}
+.encabezado {padding:16px 22px;background:linear-gradient(110deg,#e7f3f6,#f2faf8);border:1px solid #d2e8e9;border-left:5px solid #2a9d8f;border-radius:16px;color:#263746;margin-bottom:12px;}
 .encabezado h1 {color:#164e63;font-size:2rem;margin:0;}
 .encabezado p {color:#4d6573;margin:8px 0 0;}
-.etiqueta {font-size:12px;letter-spacing:2px;font-weight:700;color:#18746b;margin-bottom:10px;}
+.etiqueta {font-size:11px;letter-spacing:1.4px;font-weight:700;color:#18746b;margin-bottom:3px;}
 [data-testid="stSidebar"] {background:#edf4f7;border-right:1px solid #dce7ed;}
 .encabezado {display:flex;justify-content:space-between;align-items:center;gap:24px;}
-.encabezado h1 {font-size:2.8rem;letter-spacing:-1px;}
-.marca-cerebro {width:114px;min-width:84px;color:#25877e;}
-.equipo {font-size:0.86rem;color:#526b79;margin-top:15px;}
+.encabezado h1 {font-size:2rem;letter-spacing:-0.6px;}
+.marca-cerebro {width:68px;min-width:58px;color:#25877e;}
+.equipo {font-size:0.78rem;color:#526b79;margin-top:5px;}
+[data-testid="stMetricValue"] {white-space:normal;font-size:1.4rem;}
+[data-testid="stMetric"] {padding:13px;}
 .pasos {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0 24px;}
 .paso {padding:16px 18px;border:1px solid #dce7ed;border-radius:14px;background:#fff;color:#4d6573;font-size:0.9rem;}
 .paso strong {display:block;color:#164e63;margin-bottom:4px;}
@@ -53,17 +55,15 @@ def metricas():
 
 st.markdown('''<div class="encabezado"><div><div class="etiqueta">RESONANCIAS CEREBRALES · IA EDUCATIVA</div>
 <h1>Neuro JVC</h1>
-<p>Una imagen, una predicción y una explicación para entenderla.</p>
+<p>Un espacio para aprender cómo clasifica la IA las resonancias cerebrales.</p>
 <div class="equipo">Desarrollado por Javiera, Valentina y Cristian</div></div>
 <svg class="marca-cerebro" viewBox="0 0 100 100" role="img" aria-label="Ícono de cerebro de Neuro JVC" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
 <rect x="3" y="3" width="94" height="94" rx="26" fill="#e4f3ef" stroke="none"/>
 <path d="M49 24c-8-12-25-5-25 7-12 3-15 19-7 27-7 14 5 27 17 24 5 8 15 4 15-5V24zm2 0c8-12 25-5 25 7 12 3 15 19 7 27 7 14-5 27-17 24-5 8-15 4-15-5V24z"/>
 <path d="M24 31c10-3 14 5 12 12M17 58c6-8 14-6 18-1m-1 25c-4-7-2-14 5-17M76 31c-10-3-14 5-12 12m19 15c-6-8-14-6-18-1m1 25c4-7 2-14-5-17M36 43l6 5m22-5-6 5"/>
 </svg></div>''', unsafe_allow_html=True)
-st.warning('Esta herramienta es un proyecto educativo. Puede equivocarse y no reemplaza la evaluación de un profesional de salud.')
-st.markdown('''<div class="pasos"><div class="paso"><strong><span class="numero">01</span>Elige una imagen</strong>Sube una resonancia o prueba un ejemplo.</div>
-<div class="paso"><strong><span class="numero">02</span>Explora la predicción</strong>Revisa la categoría sugerida y su confianza.</div>
-<div class="paso"><strong><span class="numero">03</span>Entiende el siguiente paso</strong>Pide a Gemini una orientación sencilla.</div></div>''', unsafe_allow_html=True)
+st.caption('Para estudiantes y docentes · 1. Elige un ejemplo → 2. Compara la predicción → 3. Explícala con Gemini')
+st.warning('Proyecto educativo: la IA puede equivocarse. Sus respuestas no son un diagnóstico.')
 
 with st.sidebar:
     st.header('🧠 Neuro JVC')
@@ -86,7 +86,7 @@ with analizar:
     izquierda, derecha = st.columns([1,1.15], gap='large')
     with izquierda:
         st.subheader('1. Elige una resonancia')
-        modo = st.radio('¿Cómo quieres probar Neuro JVC?', ['Subir imagen', 'Usar un ejemplo'], horizontal=True)
+        modo = st.radio('¿Cómo quieres probar Neuro JVC?', ['Usar un ejemplo', 'Subir imagen'], horizontal=True, key='modo_neuro_v2')
         ejemplo = None
         if modo == 'Subir imagen':
             st.caption('Arrastra tu imagen al recuadro o pulsa «Seleccionar imagen».')
@@ -99,7 +99,7 @@ with analizar:
                 [e['nombre'] + ' · etiqueta del dataset' for e in ejemplos])
             ejemplo = next(e for e in ejemplos if e['nombre'] + ' · etiqueta del dataset' == elegido)
             datos = (BASE / ejemplo['archivo']).read_bytes()
-            st.caption('Ejemplo público de Testing. Su etiqueta de origen se muestra para comparar; no determina lo que responderá la IA.')
+            st.caption('Imagen de prueba con una etiqueta conocida. Úsala para comparar lo que responde la IA.')
         identificador = hashlib.sha256(datos).hexdigest() if datos else None
         # Invalidar todo al cambiar/quitar la imagen impide mostrar un resultado anterior.
         if st.session_state.get('imagen_id') != identificador:
@@ -110,9 +110,13 @@ with analizar:
         if datos:
             try:
                 imagen = leer_imagen(datos)
-                st.image(imagen, caption='Imagen seleccionada', width='stretch')
+                # Miniatura solo para la vista: el modelo sigue recibiendo la imagen original.
+                vista = imagen.copy()
+                vista.thumbnail((420, 280))
+                st.image(vista, caption='Imagen seleccionada', width=vista.width)
                 if ejemplo:
-                    st.caption(f"Etiqueta de origen: {ejemplo['nombre']} · Archivo: {ejemplo['origen']}")
+                    with st.expander('De dónde viene este ejemplo'):
+                        st.caption(f"Etiqueta: {ejemplo['nombre']} · Archivo: {ejemplo['origen']}")
             except ValueError as exc:
                 st.error(str(exc))
         if st.button('Clasificar imagen', type='primary', disabled=imagen is None, width='stretch'):
@@ -128,18 +132,25 @@ with analizar:
         st.subheader('2. Mira el resultado')
         resultado = st.session_state.get('resultado')
         if resultado is None:
-            st.info('Sube una imagen y pulsa «Clasificar imagen» para ver el resultado.')
+            st.info('Pulsa «Clasificar imagen» para comparar la respuesta de la IA con la etiqueta del ejemplo. También puedes subir tu propia imagen.')
+            if ejemplo:
+                st.metric('Etiqueta del dataset', ejemplo['nombre'], help='Es la categoría que trae la base de datos. Se usa como referencia del ejercicio; no es una nueva evaluación médica.')
         else:
-            st.metric('Categoría sugerida por la IA', NOMBRES[resultado['clase']])
-            st.metric('Confianza del modelo', f"{resultado['confianza']:.1%}")
+            if ejemplo:
+                referencia, prediccion = st.columns(2)
+                referencia.metric('Etiqueta del dataset', ejemplo['nombre'], help='Etiqueta original de esta imagen en la base de datos, independiente de la predicción.')
+                prediccion.metric('Predicción de la IA', NOMBRES[resultado['clase']], help='Categoría que acaba de elegir el modelo a partir de los píxeles.')
+            else:
+                st.metric('Predicción de la IA', NOMBRES[resultado['clase']])
+            st.metric('Confianza del modelo', f"{resultado['confianza']:.1%}", help='Cuánto favorece el modelo su opción elegida frente a las otras tres. No mide la probabilidad de enfermedad ni garantiza un acierto.')
             st.caption('Este porcentaje indica cuánto favorece el modelo esta categoría frente a las otras tres. No indica la probabilidad de tener un tumor ni garantiza que la respuesta sea correcta.')
             if ejemplo:
                 if resultado['clase'] == ejemplo['clase']:
-                    st.info(f"En este ejemplo, la predicción coincide con la etiqueta de origen: {ejemplo['nombre']}.")
+                    st.success('Coinciden en este ejemplo. Esto no demuestra que el modelo acierte con todas las imágenes.')
                 else:
-                    st.warning(f"En este ejemplo, la IA se equivocó respecto de la etiqueta del dataset: {ejemplo['nombre']}. Una confianza alta no garantiza un acierto.")
+                    st.warning('No coinciden: es un error respecto de la etiqueta del dataset. Observa que una confianza alta no garantiza un acierto.')
             if resultado['baja_confianza']:
-                st.warning('El modelo tiene dudas: su confianza es menor al 80 %. No te quedes solo con esta respuesta; pide que un profesional revise la imagen. El 80 % es una referencia del proyecto, no un criterio médico.')
+                st.warning('Confianza baja: menor al 80 %. Revisa este caso con tu docente antes de sacar conclusiones. Si fuera un caso real, necesita revisión profesional. El umbral es orientativo, no médico.')
             if resultado['clase'] == 'notumor':
                 st.info('«Sin tumor» es la categoría elegida por la IA. Por sí sola, esta respuesta no permite saber si una persona está sana.')
             st.markdown('**Cómo se repartió la confianza entre las categorías**')
@@ -154,14 +165,17 @@ with analizar:
                              hide_index=True, width='stretch')
 
     st.divider()
-    st.subheader('3. Entiende el resultado y el siguiente paso')
-    st.write('¿Qué hago con esta respuesta? Pide una explicación sencilla y una orientación para revisarla con un profesional de salud.')
+    st.subheader('3. Entiende esta predicción')
+    st.write('Pide a Gemini una explicación para el ejercicio: qué eligió la IA, cómo interpretar su confianza y qué revisar con tu docente.')
     st.caption('Gemini recibe solo la categoría, el porcentaje de confianza y el contexto del proyecto. No recibe tu imagen ni su nombre.')
     if st.button('Generar recomendación con IA', disabled=st.session_state.get('resultado') is None):
         st.session_state.pop('recomendacion', None)
         try:
             with st.spinner('Preparando una explicación para ti…'):
-                st.session_state['recomendacion'] = generar_recomendacion(st.session_state['resultado'])
+                contexto_educativo = dict(st.session_state['resultado'])
+                if ejemplo:
+                    contexto_educativo['etiqueta_ejemplo'] = ejemplo['clase']
+                st.session_state['recomendacion'] = generar_recomendacion(contexto_educativo)
         except ErrorRecomendacion as exc:
             st.error(str(exc))
         except ValueError:
@@ -186,8 +200,8 @@ with desempeno:
     m = metricas()
     st.write('Probamos el modelo con **1.600 imágenes** que no se usaron para ajustar sus pesos. Estos resultados resumen esa prueba; no dicen si la respuesta de tu imagen es correcta.')
     a,b,c = st.columns(3)
-    a.metric('Aciertos en la prueba (accuracy)', f"{m['efficientnet']['accuracy']:.2%}")
-    b.metric('F1 macro en test', f"{m['efficientnet']['f1_macro']:.2%}")
+    a.metric('Aciertos en la prueba (accuracy)', f"{m['efficientnet']['accuracy']:.2%}", help='Porcentaje de imágenes de prueba cuya predicción coincidió con su etiqueta. No es la confianza de una imagen individual.')
+    b.metric('F1 macro en test', f"{m['efficientnet']['f1_macro']:.2%}", help='Combina precisión y recall y promedia las cuatro categorías con igual peso. Un valor cercano a 100 % es mejor en esta prueba.')
     c.metric('Imágenes de prueba', '1.600')
     st.caption('El modelo acertó en 1.490 de las 1.600 imágenes de esa prueba. F1 macro resume precisión y detección dando el mismo peso a las cuatro categorías.')
     st.caption('Fuente: salidas guardadas de Certamen1_IA.ipynb. F1 y métricas por clase se transcriben con el redondeo mostrado en el notebook.')

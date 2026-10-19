@@ -81,3 +81,9 @@ Desarrollado por Javiera, Valentina y Cristian. La interfaz usa blanco hielo, az
 El modo «Usar un ejemplo» incluye cuatro imágenes públicas del archivo del dataset entregado por el grupo. Se seleccionó el primer nombre de archivo de Testing de cada clase en orden alfabético, sin escogerlos por el acierto del modelo. `ejemplos.json` documenta archivo de origen, etiqueta y huella SHA256. La etiqueta de origen y la predicción se presentan separadas y se avisa si no coinciden. Estos ejemplos no constituyen una nueva evaluación de desempeño.
 
 Al subir esta versión a GitHub, incluir `ejemplos.json` y los cuatro archivos `ejemplo_*.jpg` en la raíz junto a `app.py`. Los originales del dataset conservan sus condiciones de uso.
+
+### Interfaz para estudiantes y docentes
+
+Los ejemplos se abren por defecto; la carga propia queda como alternativa. El encabezado es compacto y la barra lateral se inicia cerrada para priorizar imagen y resultado. La etiqueta del dataset y la predicción se muestran juntas, con aviso de coincidencia o desacuerdo. Confianza, accuracy y F1 tienen ayudas breves. La miniatura visual no cambia la imagen que recibe EfficientNet.
+
+Gemini orienta el aprendizaje y la revisión con el docente. En modo ejemplo recibe también la etiqueta pública de referencia y si coincide con la predicción, sin recibir píxeles ni ruta del archivo. Para casos reales se mantiene la necesidad de revisión por un profesional de salud.
