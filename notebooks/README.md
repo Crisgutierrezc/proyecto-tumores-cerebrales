@@ -1,6 +1,6 @@
 # Notebook ejecutado
 
-`entrenamiento.ipynb` es una copia de `Certamen1_IA_Final.ipynb`, entregado por el grupo. Conserva sus celdas y resultados visibles; no se reejecutó para esta publicación.
+`Certamen1_IA_Final.ipynb` es una copia de `Certamen1_IA_Final.ipynb`, entregado por el grupo. Conserva sus celdas y resultados visibles; no se reejecutó para esta publicación.
 
 Incluye datos y split, fine-tuning de EfficientNet-B0, CLIP zero-shot, métricas en test, matrices de confusión, interpretación del error más costoso y exportación y recarga del modelo.
 
