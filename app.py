@@ -18,28 +18,30 @@ if st.session_state.get('version_orientacion') != 'aprendizaje-2':
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('''<style>
-.stApp {background: #f5f9fc;color:#263746;}
+.stApp {background: #f5f7fc;color:#12233f;}
 .block-container {max-width:1180px;padding-top:1.3rem;}
-h1,h2,h3,h4 {color:#164e63;}
-[data-testid="stMetric"] {background:#ffffff;padding:18px;border-radius:14px;border:1px solid #dce7ed;}
-.encabezado {padding:16px 22px;background:linear-gradient(110deg,#e7f3f6,#f2faf8);border:1px solid #d2e8e9;border-left:5px solid #2a9d8f;border-radius:16px;color:#263746;margin-bottom:12px;}
-.encabezado h1 {color:#164e63;font-size:2rem;margin:0;}
-.encabezado p {color:#4d6573;margin:8px 0 0;}
-.etiqueta {font-size:11px;letter-spacing:1.4px;font-weight:700;color:#18746b;margin-bottom:3px;}
-[data-testid="stSidebar"] {background:#edf4f7;border-right:1px solid #dce7ed;}
+h1,h2,h3,h4 {color:#24558b;}
+[data-testid="stMetric"] {background:#ffffff;padding:18px;border-radius:14px;border:1px solid #dce3f2;}
+.encabezado {padding:16px 22px;background:linear-gradient(110deg,#0c1b2e,#343db7);border:1px solid #35458a;border-left:5px solid #bff0fc;border-radius:16px;color:#12233f;margin-bottom:12px;}
+.encabezado h1 {color:#ffffff;font-size:2rem;margin:0;}
+.encabezado p {color:#e7edff;margin:8px 0 0;}
+.etiqueta {font-size:11px;letter-spacing:1.4px;font-weight:700;color:#bff0fc;margin-bottom:3px;}
+[data-testid="stSidebar"] {background:#eaf0fc;border-right:1px solid #dce3f2;}
 .encabezado {display:flex;justify-content:space-between;align-items:center;gap:24px;}
 .encabezado h1 {font-size:2rem;letter-spacing:-0.6px;}
-.marca-cerebro {width:68px;min-width:58px;color:#25877e;}
-.equipo {font-size:0.78rem;color:#526b79;margin-top:5px;}
+.marca-cerebro {width:68px;min-width:58px;color:#bff0fc;}
+.equipo {font-size:0.78rem;color:#d4dcff;margin-top:5px;}
 [data-testid="stMetricValue"] {white-space:normal;font-size:1.4rem;}
 [data-testid="stMetricValue"] > div {white-space:normal;overflow:visible;text-overflow:clip;font-size:1.25rem;line-height:1.35;}
 [data-testid="stMetric"] {padding:13px;}
 .pasos {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0 24px;}
-.paso {padding:16px 18px;border:1px solid #dce7ed;border-radius:14px;background:#fff;color:#4d6573;font-size:0.9rem;}
-.paso strong {display:block;color:#164e63;margin-bottom:4px;}
-.numero {display:inline-block;color:#18746b;font-weight:700;margin-right:5px;}
+.paso {padding:16px 18px;border:1px solid #dce3f2;border-radius:14px;background:#fff;color:#4e6180;font-size:0.9rem;}
+.paso strong {display:block;color:#24558b;margin-bottom:4px;}
+.numero {display:inline-block;color:#24558b;font-weight:700;margin-right:5px;}
 button[kind="primary"]:not(:disabled) {color:#ffffff!important;font-weight:700;}
-[data-testid="stFileUploaderDropzone"] {border:1px dashed #8ab9bd;border-radius:14px;background:#fff;}
+[data-testid="stFileUploaderDropzone"] {border:1px dashed #879ed0;border-radius:14px;background:#fff;}
+[data-testid="stVerticalBlockBorderWrapper"] > div {border-color:#dce3f2;}
+[data-baseweb="tab-highlight"] {background-color:#315fa8;}
 [data-testid="stFileUploaderDropzoneInstructions"] {display:none;}
 [data-testid="stFileUploaderDropzone"] button {font-size:0!important;}
 [data-testid="stFileUploaderDropzone"] button::after {content:"Seleccionar imagen";font-size:14px;}
@@ -59,7 +61,7 @@ st.markdown('''<div class="encabezado"><div><div class="etiqueta">RESONANCIAS CE
 <p>Un espacio para aprender cómo clasifica la IA las resonancias cerebrales.</p>
 <div class="equipo">Desarrollado por Javiera, Valentina y Cristian</div></div>
 <svg class="marca-cerebro" viewBox="0 0 100 100" role="img" aria-label="Ícono de cerebro de Neuro JVC" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
-<rect x="3" y="3" width="94" height="94" rx="26" fill="#e4f3ef" stroke="none"/>
+<rect x="3" y="3" width="94" height="94" rx="26" fill="#203e72" stroke="none"/>
 <path d="M49 24c-8-12-25-5-25 7-12 3-15 19-7 27-7 14 5 27 17 24 5 8 15 4 15-5V24zm2 0c8-12 25-5 25 7 12 3 15 19 7 27 7 14-5 27-17 24-5 8-15 4-15-5V24z"/>
 <path d="M24 31c10-3 14 5 12 12M17 58c6-8 14-6 18-1m-1 25c-4-7-2-14 5-17M76 31c-10-3-14 5-12 12m19 15c-6-8-14-6-18-1m1 25c4-7 2-14-5-17M36 43l6 5m22-5-6 5"/>
 </svg></div>''', unsafe_allow_html=True)
@@ -156,7 +158,7 @@ with analizar:
                 st.info('«Sin tumor» es la categoría elegida por la IA. Por sí sola, esta respuesta no permite saber si una persona está sana.')
             st.markdown('**Cómo se repartió la confianza entre las categorías**')
             tabla = pd.DataFrame([{'Categoría':NOMBRES[c], 'Confianza':p} for c,p in resultado['probabilidades'].items()])
-            barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#2a9d8f').encode(
+            barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#315fa8').encode(
                 x=alt.X('Confianza:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%'), title='Confianza del modelo (%)'),
                 y=alt.Y('Categoría:N',sort=None,title=None),
                 tooltip=['Categoría',alt.Tooltip('Confianza:Q', format='.2%')]).properties(height=200)
