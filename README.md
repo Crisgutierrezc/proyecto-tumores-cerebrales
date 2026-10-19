@@ -43,7 +43,7 @@ Se dividió únicamente `Training` original (5.600 imágenes) en **85 % entrenam
 
 EfficientNet-B0 acertó en **1.490 de 1.600 imágenes**, superando a CLIP en 67 puntos porcentuales de accuracy; por eso se eligió para la app. El notebook incluye precisión, recall, F1 por clase y matrices de confusión. Los resultados provienen de sus salidas guardadas; F1 y métricas por clase conservan su redondeo. No se repitió el entrenamiento ni la evaluación completa al preparar la app.
 
-**Error más costoso (4.2):** 36 de las 1.200 imágenes etiquetadas con algún tumor se clasificaron como «sin tumor» (3 %). El recall binario de tumor fue 97 %: agrupa los tipos tumorales y no exige acertar el subtipo. Un falso negativo podría dar falsa tranquilidad si se tratara como diagnóstico. Confundir tipos también importa. La interpretación se conserva en el notebook para la exposición, aunque se retiró su recuadro de la interfaz.
+**Error más costoso (4.2):** 36 de las 1.200 imágenes etiquetadas con algún tumor se clasificaron como «sin tumor» (3 %). El recall binario de tumor fue 97 %: agrupa los tipos tumorales y no exige acertar el subtipo. Un falso negativo podría dar falsa tranquilidad si se tratara como diagnóstico. Confundir tipos también importa. La interpretación completa está en el notebook.
 
 El `.pt` exportado contiene pesos, arquitectura, orden de clases y preprocesamiento. La app conserva la transformación de evaluación y usa `eval()` y `torch.inference_mode()`. El notebook comprueba la recarga del archivo exportado.
 
@@ -54,7 +54,7 @@ El `.pt` exportado contiene pesos, arquitectura, orden de clases y preprocesamie
 3. Pulsa **Generar recomendación con IA** para obtener una explicación de Gemini.
 4. Consulta **Resultados del modelo** para ver métricas, matriz y comparación, o **Conoce el proyecto** para revisar metodología y límites.
 
-La interfaz usa los azules de la presentación, un ícono propio y una barra lateral informativa. Los ejemplos precargados se retiraron; las imágenes públicas de muestra se conservan para pruebas manuales. Cambiar o retirar la imagen borra el resultado y la explicación anteriores.
+La interfaz usa los azules de la presentación, un ícono propio y una barra lateral informativa. Las imágenes públicas de la carpeta `ejemplos/` permiten probar la app manualmente. Cambiar o retirar la imagen borra el resultado y la explicación anteriores.
 
 La confianza softmax no es probabilidad de enfermedad ni accuracy individual. El umbral de baja confianza del 80 % es orientativo y educativo. La app avisa y pide revisión cuando la confianza es baja. No tiene un detector fiable de imágenes ajenas al problema y también podría asignarles una clase.
 
@@ -77,12 +77,12 @@ La imagen se procesa en el servidor de Streamlit durante la sesión y no se aña
 | `recomendacion.py` | Prompt, API de Gemini y comprobaciones |
 | `notebooks/entrenamiento.ipynb` | Notebook del grupo con resultados visibles |
 | `modelo/brain_tumor_efficientnet_b0.pt`, `modelo/clases.json` | Pesos y metadatos, incluidas las clases |
-| `metricas_test.json`, `matriz_confusion.png` | Resultados del notebook |
+| `metricas_test.json` | Resultados del notebook |
 | `ejemplos/ejemplo_*.jpg`, `ejemplos/ejemplos.json` | Cuatro imágenes públicas y su procedencia |
 | `requirements.txt` | Dependencias de la app |
 | `.streamlit/config.toml` | Tema y límite de carga |
 
-Los pesos y las clases están en `modelo/`, y las imágenes de muestra en `ejemplos/`. Se retiraron las copias antiguas de la raíz; la app carga los pesos desde `modelo/`. No se incluye el dataset completo. Los ejemplos conservan la atribución y condiciones de sus fuentes; no fueron elegidos por el acierto del modelo.
+Los pesos y las clases están en `modelo/`, y las imágenes de muestra en `ejemplos/`. La app carga los pesos desde `modelo/`. No se incluye el dataset completo. Los ejemplos conservan la atribución y condiciones de sus fuentes; no fueron elegidos por el acierto del modelo.
 
 Para la app, usar **Python 3.12**:
 
