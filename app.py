@@ -236,7 +236,7 @@ with desempeno:
     st.dataframe(pd.DataFrame(m['por_clase']).rename(columns={
         'clase':'Clase','precision':'Precisión','recall':'Recall','f1':'F1','n':'Imágenes'}),
         hide_index=True, width='stretch')
-    st.image(str(BASE / 'matriz_confusion.png'), caption='Matriz de confusión de EfficientNet-B0 exportada del notebook: filas reales, columnas predichas.', width='stretch')
+    st.image(str(BASE / 'matriz_confusion.png'), caption='Matriz de confusión de EfficientNet-B0: filas reales, columnas predichas. Valores del notebook, con presentación visual adaptada.', width='stretch')
     st.subheader('¿Qué aportó entrenar con estas imágenes?')
     st.write('Comparamos ambos enfoques en las mismas 1.600 imágenes de prueba. Un porcentaje mayor indica un mejor resultado en esta evaluación.')
     def porcentaje_comparacion(valor):
