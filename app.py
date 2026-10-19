@@ -19,10 +19,11 @@ torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('''<style>
 .stApp {background: #f5f7fc;color:#12233f;}
-.block-container {max-width:1180px;padding-top:1.3rem;}
+.block-container {max-width:1180px;padding-top:4.8rem;padding-bottom:3rem;}
 h1,h2,h3,h4 {color:#24558b;}
 [data-testid="stMetric"] {background:#ffffff;padding:18px;border-radius:14px;border:1px solid #dce3f2;}
 .encabezado {padding:16px 22px;background:linear-gradient(110deg,#0c1b2e,#343db7);border:1px solid #35458a;border-left:5px solid #bff0fc;border-radius:16px;color:#12233f;margin-bottom:12px;}
+.encabezado > div {min-width:0;}
 .encabezado h1 {color:#ffffff;font-size:2rem;margin:0;}
 .encabezado p {color:#e7edff;margin:8px 0 0;}
 .etiqueta {font-size:11px;letter-spacing:1.4px;font-weight:700;color:#bff0fc;margin-bottom:3px;}
@@ -32,7 +33,7 @@ h1,h2,h3,h4 {color:#24558b;}
 .marca-cerebro {width:68px;min-width:58px;color:#bff0fc;}
 .equipo {font-size:0.78rem;color:#d4dcff;margin-top:5px;}
 [data-testid="stMetricValue"] {white-space:normal;font-size:1.4rem;}
-[data-testid="stMetricValue"] > div {white-space:normal;overflow:visible;text-overflow:clip;font-size:1.25rem;line-height:1.35;}
+[data-testid="stMetricValue"] > div {white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:1.25rem;line-height:1.35;overflow-wrap:anywhere;}
 [data-testid="stMetric"] {padding:13px;}
 .pasos {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0 24px;}
 .paso {padding:16px 18px;border:1px solid #dce3f2;border-radius:14px;background:#fff;color:#4e6180;font-size:0.9rem;}
@@ -45,7 +46,8 @@ button[kind="primary"]:not(:disabled) {color:#ffffff!important;font-weight:700;}
 [data-testid="stFileUploaderDropzoneInstructions"] {display:none;}
 [data-testid="stFileUploaderDropzone"] button {font-size:0!important;}
 [data-testid="stFileUploaderDropzone"] button::after {content:"Seleccionar imagen";font-size:14px;}
-@media(max-width:640px){.pasos {grid-template-columns:1fr;gap:8px;}.marca-cerebro {display:none;}.encabezado h1 {font-size:2.2rem;}.encabezado {padding:22px;}}
+.stTabs [role="tab"] {height:auto;min-height:44px;white-space:normal;}
+@media(max-width:640px){.block-container {padding-top:4.6rem;padding-left:1rem;padding-right:1rem;}.pasos {grid-template-columns:1fr;gap:8px;}.marca-cerebro {display:none;}.encabezado h1 {font-size:2.2rem;}.encabezado {padding:22px;}}
 </style>''', unsafe_allow_html=True)
 
 @st.cache_resource(show_spinner=False)
