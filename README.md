@@ -4,7 +4,7 @@ Proyecto académico de **Javiera García, Cristian Gutiérrez y Valentina Jimén
 
 - **App:** https://proyecto-tumores-cerebrales.streamlit.app/
 - **Repositorio:** https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales
-- **Notebook ejecutado:** [notebooks/entrenamiento.ipynb](notebooks/entrenamiento.ipynb)
+- **Notebook ejecutado:** [notebooks/Certamen1_IA_Final.ipynb](notebooks/Certamen1_IA_Final.ipynb)
 
 Prototipo educativo, sin validación clínica. No confirma ni descarta un diagnóstico y no debe utilizarse para tomar decisiones médicas.
 
@@ -75,7 +75,7 @@ La imagen se procesa en el servidor de Streamlit durante la sesión y no se aña
 | `app.py` | Interfaz, carga y estado de sesión |
 | `modelo.py` | Validación de imágenes, carga del modelo e inferencia |
 | `recomendacion.py` | Prompt, API de Gemini y comprobaciones |
-| `notebooks/entrenamiento.ipynb` | Notebook del grupo con resultados visibles |
+| `notebooks/Certamen1_IA_Final.ipynb` | Notebook del grupo con resultados visibles |
 | `modelo/brain_tumor_efficientnet_b0.pt`, `modelo/clases.json` | Pesos y metadatos, incluidas las clases |
 | `metricas_test.json` | Resultados del notebook |
 | `ejemplos/ejemplo_*.jpg`, `ejemplos/ejemplos.json` | Cuatro imágenes públicas y su procedencia |
