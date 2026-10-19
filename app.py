@@ -105,7 +105,7 @@ st.markdown('''<div class="encabezado"><div><div class="etiqueta">RESONANCIAS CE
 <path d="M24 31c10-3 14 5 12 12M17 58c6-8 14-6 18-1m-1 25c-4-7-2-14 5-17M76 31c-10-3-14 5-12 12m19 15c-6-8-14-6-18-1m1 25c4-7 2-14-5-17M36 43l6 5m22-5-6 5"/>
 </svg></div>''', unsafe_allow_html=True)
 st.markdown("""<div class="introduccion"><h2>¿Qué puedes descubrir con Neuro JVC?</h2>
-<p>Esta aplicación educativa analiza imágenes de resonancia cerebral y las clasifica en cuatro categorías: <strong>glioma, meningioma, sin tumor y tumor hipofisario</strong>. Puedes probar ejemplos del proyecto o cargar una imagen y explorar cómo responde el modelo.</p></div>
+<p>Esta aplicación educativa analiza imágenes de resonancia cerebral y las clasifica en cuatro categorías: <strong>glioma, meningioma, sin tumor y tumor hipofisario</strong>. Carga una imagen y explora cómo responde el modelo.</p></div>
 <div class="resumen-proyecto">
 <div class="tarjeta-resumen"><span class="sobretitulo">01 · EXPLORA</span><h3>Una imagen, cuatro categorías</h3><p>EfficientNet-B0 analiza la imagen y muestra su predicción y la confianza asignada a cada categoría.</p></div>
 <div class="tarjeta-resumen"><span class="sobretitulo">02 · COMPARA</span><h3>Resultados que puedes revisar</h3><p>Acertó en 1.490 de 1.600 imágenes de prueba. Revisa las métricas y los errores en «Resultados del modelo».</p></div>
@@ -134,21 +134,10 @@ with analizar:
     izquierda, derecha = st.columns([1,1.15], gap='large')
     with izquierda:
         st.subheader('1. Selecciona una imagen')
-        st.caption('Empieza con un ejemplo del dataset o carga un archivo JPG o PNG.')
-        modo = st.radio('¿Cómo quieres probar Neuro JVC?', ['Usar un ejemplo', 'Subir imagen'], horizontal=True, key='modo_neuro_v2')
-        ejemplo = None
-        if modo == 'Subir imagen':
-            st.caption('Arrastra tu imagen al recuadro o pulsa «Seleccionar imagen».')
-            archivo = st.file_uploader('Imagen de resonancia cerebral', type=['jpg','jpeg','png'])
-            st.caption('JPG o PNG · máximo 10 MB. Una sola imagen, no un estudio médico completo.')
-            datos = archivo.getvalue() if archivo else None
-        else:
-            ejemplos = json.loads((BASE / 'ejemplos.json').read_text(encoding='utf-8'))
-            elegido = st.selectbox('Selecciona un ejemplo del proyecto',
-                [e['nombre'] + ' · etiqueta del dataset' for e in ejemplos])
-            ejemplo = next(e for e in ejemplos if e['nombre'] + ' · etiqueta del dataset' == elegido)
-            datos = (BASE / ejemplo['archivo']).read_bytes()
-            st.caption('Imagen de prueba con una etiqueta conocida. Úsala para comparar lo que responde la IA.')
+        st.caption('Arrastra tu imagen al recuadro o pulsa «Seleccionar imagen».')
+        archivo = st.file_uploader('Imagen de resonancia cerebral', type=['jpg','jpeg','png'])
+        st.caption('JPG o PNG · máximo 10 MB. Una sola imagen, no un estudio médico completo.')
+        datos = archivo.getvalue() if archivo else None
         identificador = hashlib.sha256(datos).hexdigest() if datos else None
         # Invalidar todo al cambiar/quitar la imagen impide mostrar un resultado anterior.
         if st.session_state.get('imagen_id') != identificador:
@@ -163,9 +152,6 @@ with analizar:
                 vista = imagen.copy()
                 vista.thumbnail((420, 280))
                 st.image(vista, caption='Imagen seleccionada', width=vista.width)
-                if ejemplo:
-                    with st.expander('De dónde viene este ejemplo'):
-                        st.caption(f"Etiqueta: {ejemplo['nombre']} · Archivo: {ejemplo['origen']}")
             except ValueError as exc:
                 st.error(str(exc))
         if st.button('Clasificar imagen', type='primary', disabled=imagen is None, width='stretch'):
@@ -181,23 +167,11 @@ with analizar:
         st.subheader('2. Revisa la predicción')
         resultado = st.session_state.get('resultado')
         if resultado is None:
-            st.info('Pulsa «Clasificar imagen» para comparar la respuesta de la IA con la etiqueta del ejemplo. También puedes subir tu propia imagen.')
-            if ejemplo:
-                st.metric('Etiqueta del dataset', ejemplo['nombre'], help='Es la categoría que trae la base de datos. Se usa como referencia del ejercicio; no es una nueva evaluación médica.')
+            st.info('Carga una imagen y pulsa «Clasificar imagen». Aquí verás la categoría predicha y la confianza del modelo.')
         else:
-            if ejemplo:
-                referencia, prediccion = st.columns(2)
-                referencia.metric('Etiqueta del dataset', ejemplo['nombre'], help='Etiqueta original de esta imagen en la base de datos, independiente de la predicción.')
-                prediccion.metric('Predicción de la IA', NOMBRES[resultado['clase']], help='Categoría que acaba de elegir el modelo a partir de los píxeles.')
-            else:
-                st.metric('Predicción de la IA', NOMBRES[resultado['clase']])
+            st.metric('Predicción de la IA', NOMBRES[resultado['clase']])
             st.metric('Confianza del modelo', f"{resultado['confianza']:.1%}", help='Cuánto favorece el modelo su opción elegida frente a las otras tres. No mide la probabilidad de enfermedad ni garantiza un acierto.')
             st.caption('Este porcentaje indica cuánto favorece el modelo esta categoría frente a las otras tres. No indica la probabilidad de tener un tumor ni garantiza que la respuesta sea correcta.')
-            if ejemplo:
-                if resultado['clase'] == ejemplo['clase']:
-                    st.success('Coinciden en este ejemplo. Esto no demuestra que el modelo acierte con todas las imágenes.')
-                else:
-                    st.warning('No coinciden: es un error respecto de la etiqueta del dataset. Observa que una confianza alta no garantiza un acierto.')
             if resultado['baja_confianza']:
                 st.warning('Confianza baja: menor al 80 %. Revisa este caso con tu docente antes de sacar conclusiones. Si fuera un caso real, necesita revisión profesional. El umbral es orientativo, no médico.')
             if resultado['clase'] == 'notumor':
@@ -222,8 +196,6 @@ with analizar:
         try:
             with st.spinner('Preparando una explicación para ti…'):
                 contexto_educativo = dict(st.session_state['resultado'])
-                if ejemplo:
-                    contexto_educativo['etiqueta_ejemplo'] = ejemplo['clase']
                 st.session_state['recomendacion'] = generar_recomendacion(contexto_educativo)
         except ErrorRecomendacion as exc:
             st.error(str(exc))
@@ -283,7 +255,7 @@ with desempeno:
 with explicar:
     st.subheader('Neuro JVC: aprender a mirar una predicción con criterio')
     st.write('Somos Javiera, Valentina y Cristian. Desarrollamos este proyecto para explorar cómo la inteligencia artificial clasifica resonancias cerebrales y cómo explicar sus resultados de forma comprensible.')
-    st.markdown('**Qué puedes hacer aquí:** probar una imagen, comparar las cuatro categorías, revisar los resultados de evaluación y pedir una explicación a Gemini.')
+    st.markdown('**Qué puedes hacer aquí:** cargar una imagen, comparar las cuatro categorías, revisar los resultados de evaluación y pedir una explicación a Gemini.')
     st.markdown('**Qué no hace la app:** no localiza un tumor, no mide su tamaño, no establece gravedad y no determina un diagnóstico.')
     st.markdown('#### Las categorías del proyecto')
     st.dataframe(pd.DataFrame([{'Nombre en la app': nombre, 'Etiqueta original': clase}
