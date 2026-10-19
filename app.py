@@ -18,6 +18,19 @@ if st.session_state.get('version_orientacion') != 'aprendizaje-2':
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='collapsed')
 st.markdown('''<style>
+.comparacion-modelos {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:22px 0 16px;}
+.modelo-comparado {background:#fff;border:1px solid #dce3f2;border-radius:18px;padding:26px;}
+.modelo-principal {background:linear-gradient(145deg,#fff,#eef3ff);border-color:#a8bbdf;}
+.modelo-insignia {display:inline-block;border-radius:6px;background:#edf0f7;color:#536888;padding:6px 9px;font-size:.65rem;letter-spacing:1px;font-weight:750;}
+.modelo-principal .modelo-insignia {background:#dce7ff;color:#24558b;}
+.modelo-comparado h3 {font-size:1.4rem;letter-spacing:-.4px;color:#12233f;margin:15px 0 8px;}
+.modelo-descripcion {color:#536888;font-size:.9rem;line-height:1.7;min-height:5em;margin-bottom:20px;}
+.modelo-cifras {display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid #dce3f2;padding-top:18px;}
+.modelo-cifras span {display:block;font-size:.75rem;color:#536888;line-height:1.5;}
+.modelo-cifras strong {display:block;font-size:clamp(1.3rem,2.8vw,2rem);color:#12233f;margin:7px 0;letter-spacing:-.6px;white-space:nowrap;}
+.modelo-pie {color:#536888;font-size:.8rem;line-height:1.6;margin:16px 0 0;}
+.conclusion-comparacion {padding:18px 20px;border-radius:12px;background:#e8effc;border-left:3px solid #315fa8;color:#24558b;line-height:1.7;font-size:.9rem;margin-bottom:24px;}
+@media(max-width:760px){.comparacion-modelos {grid-template-columns:1fr;}.modelo-comparado {padding:20px;}.modelo-descripcion {min-height:0;}.modelo-cifras strong {font-size:1.8rem;}}
 .indicadores-test {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0 16px;}
 .indicador-test {background:#fff;border:1px solid #dce3f2;border-radius:18px;padding:24px;box-shadow:0 5px 18px rgba(18,35,63,.04);border-top:4px solid #315fa8;}
 .indicador-test:nth-child(2) {border-top-color:#8278ce;}
@@ -248,10 +261,15 @@ with desempeno:
         'clase':'Clase','precision':'Precisión','recall':'Recall','f1':'F1','n':'Imágenes'}),
         hide_index=True, width='stretch')
     st.image(str(BASE / 'matriz_confusion.png'), caption='Matriz de confusión de EfficientNet-B0 exportada del notebook: filas reales, columnas predichas.', width='stretch')
-    st.markdown('**Comparación con la línea base**')
-    st.dataframe(pd.DataFrame([
-        {'Modelo':'CLIP zero-shot','Accuracy':m['clip']['accuracy'],'F1 macro':m['clip']['f1_macro']},
-        {'Modelo':'EfficientNet-B0','Accuracy':m['efficientnet']['accuracy'],'F1 macro':m['efficientnet']['f1_macro']}]), hide_index=True, width='stretch')
+    st.subheader('¿Qué aportó entrenar con estas imágenes?')
+    st.write('Comparamos ambos enfoques en las mismas 1.600 imágenes de prueba. Un porcentaje mayor indica un mejor resultado en esta evaluación.')
+    def porcentaje_comparacion(valor):
+        return f'{valor * 100:.2f}'.replace('.', ',') + ' %'
+    diferencia = (m['efficientnet']['accuracy'] - m['clip']['accuracy']) * 100
+    st.markdown(f"""<div class="comparacion-modelos">
+    <article class="modelo-comparado"><span class="modelo-insignia">LÍNEA BASE</span><h3>CLIP zero-shot</h3><p class="modelo-descripcion">Clasifica usando descripciones de texto, sin entrenarse con las imágenes del proyecto.</p><div class="modelo-cifras"><div><span>Aciertos · accuracy</span><strong>{porcentaje_comparacion(m['clip']['accuracy'])}</strong></div><div><span>F1 macro</span><strong>{porcentaje_comparacion(m['clip']['f1_macro'])}</strong></div></div><p class="modelo-pie">Nuestro punto de partida para comparar.</p></article>
+    <article class="modelo-comparado modelo-principal"><span class="modelo-insignia">MODELO DE NEURO JVC</span><h3>EfficientNet-B0</h3><p class="modelo-descripcion">Parte de pesos preentrenados y se adapta a las cuatro categorías mediante fine-tuning.</p><div class="modelo-cifras"><div><span>Aciertos · accuracy</span><strong>{porcentaje_comparacion(m['efficientnet']['accuracy'])}</strong></div><div><span>F1 macro</span><strong>{porcentaje_comparacion(m['efficientnet']['f1_macro'])}</strong></div></div><p class="modelo-pie">Es el modelo que analiza las imágenes en esta aplicación.</p></article>
+    </div><div class="conclusion-comparacion"><strong>¿Qué observamos?</strong> EfficientNet-B0 obtuvo {diferencia:.0f} puntos porcentuales más de accuracy que CLIP en esta prueba. Por eso lo elegimos para la aplicación.</div>""", unsafe_allow_html=True)
     st.warning('Error especialmente costoso: 36 imágenes etiquetadas con tumor fueron clasificadas como «sin tumor» (36 de 1.200 imágenes tumorales; 3 %). El recall binario de tumor fue 97 %. Confundir tipos de tumor también importa.')
     st.caption('División: 4.760 entrenamiento / 840 validación / 1.600 test. Sin identificadores de paciente no se garantiza independencia entre cortes; las métricas pueden ser optimistas y no implican validación clínica.')
     with st.expander('Trazabilidad del modelo'):
