@@ -1,6 +1,6 @@
 # Neuro JVC · Clasificación de resonancias cerebrales
 
-Proyecto académico de **Javiera Gracía, Cristian Gutiérrez y Valentina Jiménez** para estudiantes y docentes. Permite cargar una resonancia, explorar la clasificación de EfficientNet-B0 y obtener una explicación educativa de Gemini.
+Proyecto académico de **Javiera García, Cristian Gutiérrez y Valentina Jiménez** para estudiantes y docentes. Permite cargar una resonancia, explorar la clasificación de EfficientNet-B0 y obtener una explicación educativa de Gemini.
 
 - **App:** https://proyecto-tumores-cerebrales.streamlit.app/
 - **Repositorio:** https://github.com/Crisgutierrezc/proyecto-tumores-cerebrales

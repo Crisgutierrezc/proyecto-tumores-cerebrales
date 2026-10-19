@@ -237,7 +237,7 @@ with desempeno:
     <article class="indicador-test"><div class="indicador-cabecera"><span class="indicador-icono" aria-hidden="true">▦</span><span>IMÁGENES EVALUADAS</span></div><div class="indicador-valor">1.600</div><div class="indicador-nombre">Conjunto de prueba</div><p>400 imágenes por categoría para evaluar el modelo.</p></article>
     </div>""", unsafe_allow_html=True)
     st.caption('Estas cifras describen el desempeño en el conjunto de prueba. No representan la confianza ni el riesgo de enfermedad de una imagen individual.')
-    st.caption('Fuente: salidas guardadas de Certamen1_IA.ipynb. F1 y métricas por clase se transcriben con el redondeo mostrado en el notebook.')
+    st.caption('Fuente: salidas guardadas de Certamen1_IA_Final.ipynb. F1 y métricas por clase se transcriben con el redondeo mostrado en el notebook.')
     st.dataframe(pd.DataFrame(m['por_clase']).rename(columns={
         'clase':'Clase','precision':'Precisión','recall':'Recall','f1':'F1','n':'Imágenes'}),
         hide_index=True, width='stretch')
