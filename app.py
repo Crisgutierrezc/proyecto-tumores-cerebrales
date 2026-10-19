@@ -11,10 +11,8 @@ from modelo import (cargar_modelo, clasificar, leer_imagen, sha256_archivo,
 from recomendacion import generar_recomendacion, LLM_ID, ErrorRecomendacion
 
 BASE = Path(__file__).resolve().parent
-# Carpeta de pesos; compatibilidad con despliegues anteriores durante la migración.
+# Pesos y metadatos exportados del notebook, guardados en la carpeta modelo/.
 RUTA_MODELO = BASE / 'modelo' / 'brain_tumor_efficientnet_b0.pt'
-if not RUTA_MODELO.exists():
-    RUTA_MODELO = BASE / 'brain_tumor_efficientnet_b0.pt'
 # Al cambiar el prompt, no conservar en pantalla una orientación de la versión anterior.
 if st.session_state.get('version_orientacion') != 'aprendizaje-2':
     st.session_state.pop('recomendacion', None)
@@ -172,7 +170,7 @@ with analizar:
                 with st.spinner('Analizando con el modelo entrenado…'):
                     st.session_state['resultado'] = clasificar(imagen, recursos_modelo())
             except Exception:
-                st.error('No se pudo cargar o ejecutar el modelo. Revisa que el archivo .pt esté en el repositorio junto a app.py.')
+                st.error('No se pudo cargar o ejecutar el modelo. Revisa que el archivo .pt esté en la carpeta modelo/ del repositorio.')
 
     with derecha:
         st.subheader('2. Revisa la predicción')
@@ -246,7 +244,6 @@ with desempeno:
     st.subheader('¿Qué categorías acertó o confundió?')
     st.caption('Filas: categoría real. Columnas: predicción. Los aciertos están en la diagonal.')
     tipo_matriz = st.radio('Vista de la matriz', ['Cantidad de imágenes', 'Porcentaje por categoría'], horizontal=True, key='vista_matriz')
-    archivo_matriz = 'matriz_cantidad.png' if tipo_matriz == 'Cantidad de imágenes' else 'matriz_porcentaje.png'
     # Mismos conteos del notebook; tabla de calor adaptable con texto legible en celular.
     conteos = [[315,41,35,9], [7,379,0,14], [0,0,400,0], [1,2,1,396]]
     categorias = ['Glioma', 'Meningioma', 'Sin tumor', 'Tumor hipofisario']
