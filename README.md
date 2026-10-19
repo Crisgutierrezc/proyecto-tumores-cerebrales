@@ -76,13 +76,13 @@ La imagen se procesa en el servidor de Streamlit durante la sesión y no se aña
 | `modelo.py` | Validación de imágenes, carga del modelo e inferencia |
 | `recomendacion.py` | Prompt, API de Gemini y comprobaciones |
 | `notebooks/entrenamiento.ipynb` | Notebook del grupo con resultados visibles |
-| `brain_tumor_efficientnet_b0.pt` | Pesos y metadatos, incluidas las clases |
+| `modelo/brain_tumor_efficientnet_b0.pt` | Pesos y metadatos, incluidas las clases |
 | `metricas_test.json`, `matriz_confusion.png` | Resultados del notebook |
-| `ejemplo_*.jpg`, `ejemplos.json` | Cuatro imágenes públicas y su procedencia |
+| `ejemplos/ejemplo_*.jpg`, `ejemplos/ejemplos.json` | Cuatro imágenes públicas y su procedencia |
 | `requirements.txt` | Dependencias de la app |
 | `.streamlit/config.toml` | Tema y límite de carga |
 
-Los pesos y las imágenes de muestra siguen en la raíz en esta versión. No se incluye el dataset completo. Los ejemplos conservan la atribución y condiciones de sus fuentes; no fueron elegidos por el acierto del modelo.
+Los pesos y las clases están en `modelo/`, y las imágenes de muestra en `ejemplos/`. Durante la migración se conservan copias antiguas en la raíz para compatibilidad; la app prefiere la carpeta `modelo/`. No se incluye el dataset completo. Los ejemplos conservan la atribución y condiciones de sus fuentes; no fueron elegidos por el acierto del modelo.
 
 Para la app, usar **Python 3.12**:
 

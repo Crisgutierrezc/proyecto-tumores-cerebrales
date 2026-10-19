@@ -11,6 +11,10 @@ from modelo import (cargar_modelo, clasificar, leer_imagen, sha256_archivo,
 from recomendacion import generar_recomendacion, LLM_ID, ErrorRecomendacion
 
 BASE = Path(__file__).resolve().parent
+# Carpeta de pesos; compatibilidad con despliegues anteriores durante la migración.
+RUTA_MODELO = BASE / 'modelo' / 'brain_tumor_efficientnet_b0.pt'
+if not RUTA_MODELO.exists():
+    RUTA_MODELO = BASE / 'brain_tumor_efficientnet_b0.pt'
 # Al cambiar el prompt, no conservar en pantalla una orientación de la versión anterior.
 if st.session_state.get('version_orientacion') != 'aprendizaje-2':
     st.session_state.pop('recomendacion', None)
@@ -95,7 +99,7 @@ button[kind="primary"]:not(:disabled) {color:#ffffff!important;font-weight:700;}
 
 @st.cache_resource(show_spinner=False)
 def recursos_modelo():
-    return cargar_modelo(BASE / 'brain_tumor_efficientnet_b0.pt')
+    return cargar_modelo(RUTA_MODELO)
 
 @st.cache_data
 def metricas():
@@ -244,7 +248,7 @@ with desempeno:
     </div><div class="conclusion-comparacion"><strong>¿Qué observamos?</strong> EfficientNet-B0 obtuvo {diferencia:.0f} puntos porcentuales más de accuracy que CLIP en esta prueba. Por eso lo elegimos para la aplicación.</div>""", unsafe_allow_html=True)
     st.caption('División: 4.760 entrenamiento / 840 validación / 1.600 test. Sin identificadores de paciente no se garantiza independencia entre cortes; las métricas pueden ser optimistas y no implican validación clínica.')
     # Comprobación interna: avisar solo si el archivo ya no corresponde al registrado.
-    actual = sha256_archivo(BASE / 'brain_tumor_efficientnet_b0.pt')
+    actual = sha256_archivo(RUTA_MODELO)
     if actual != m['modelo_sha256']:
         st.error('El archivo del modelo cambió. Estas métricas podrían no corresponder: actualiza la evaluación antes de presentar.')
 
