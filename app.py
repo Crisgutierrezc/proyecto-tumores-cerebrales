@@ -22,6 +22,13 @@ if st.session_state.get('version_orientacion') != 'aprendizaje-2':
 torch.set_num_threads(2)  # CPU: evita que varias sesiones saturen el servidor.
 st.set_page_config(page_title='Neuro JVC · Resonancias cerebrales', page_icon='🧠', layout='wide', initial_sidebar_state='auto')
 st.markdown('''<style>
+.matriz-adaptable {max-width:780px;margin:18px auto 24px;}
+.matriz-adaptable table {width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px;border:0;}
+.matriz-adaptable th,.matriz-adaptable td {border:0!important;text-align:center;padding:18px 4px;border-radius:5px;overflow-wrap:anywhere;}
+.matriz-adaptable th {color:#536888;font-size:12px;line-height:1.4;font-weight:600;background:transparent;}
+.matriz-adaptable th:first-child {width:23%;text-align:left;}
+.matriz-adaptable td {font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
+@media(max-width:640px){.matriz-adaptable table {border-spacing:2px;}.matriz-adaptable th {font-size:10px;}.matriz-adaptable td {font-size:13px;padding:20px 1px;}}
 .resultado-destacado {border:1px solid #b6c9e8;border-left:4px solid #315fa8;border-radius:16px;padding:24px;background:linear-gradient(135deg,#fff,#edf3ff);margin:14px 0;}
 .resultado-etiqueta {font-size:.67rem;letter-spacing:1px;font-weight:700;color:#536888;}
 .resultado-destacado h3 {font-size:1.8rem;line-height:1.25;color:#12233f;margin:12px 0 20px;overflow-wrap:anywhere;}
@@ -183,8 +190,8 @@ with analizar:
             st.markdown('**Cómo se repartió la confianza entre las categorías**')
             tabla = pd.DataFrame([{'Categoría':NOMBRES[c], 'Confianza':p} for c,p in resultado['probabilidades'].items()])
             barras = alt.Chart(tabla).mark_bar(cornerRadiusEnd=5, color='#315fa8').encode(
-                x=alt.X('Confianza:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%'), title='Confianza del modelo (%)'),
-                y=alt.Y('Categoría:N',sort=None,title=None),
+                x=alt.X('Confianza:Q', scale=alt.Scale(domain=[0,1]), axis=alt.Axis(format='%', tickCount=5), title='Confianza del modelo (%)'),
+                y=alt.Y('Categoría:N',sort=None,title=None,axis=alt.Axis(labelLimit=160,labelFontSize=12)),
                 tooltip=['Categoría',alt.Tooltip('Confianza:Q', format='.2%')]).properties(height=200)
             st.altair_chart(barras, use_container_width=True)
             with st.expander('Ver porcentajes de las cuatro categorías'):
@@ -236,7 +243,27 @@ with desempeno:
     st.dataframe(pd.DataFrame(m['por_clase']).rename(columns={
         'clase':'Clase','precision':'Precisión','recall':'Recall','f1':'F1','n':'Imágenes'}),
         hide_index=True, width='stretch')
-    st.image(str(BASE / 'matriz_confusion.png'), caption='Matriz de confusión de EfficientNet-B0: filas reales, columnas predichas. Valores del notebook, con presentación visual adaptada.', width='stretch')
+    st.subheader('¿Qué categorías acertó o confundió?')
+    st.caption('Filas: categoría real. Columnas: predicción. Los aciertos están en la diagonal.')
+    tipo_matriz = st.radio('Vista de la matriz', ['Cantidad de imágenes', 'Porcentaje por categoría'], horizontal=True, key='vista_matriz')
+    archivo_matriz = 'matriz_cantidad.png' if tipo_matriz == 'Cantidad de imágenes' else 'matriz_porcentaje.png'
+    # Mismos conteos del notebook; tabla de calor adaptable con texto legible en celular.
+    conteos = [[315,41,35,9], [7,379,0,14], [0,0,400,0], [1,2,1,396]]
+    categorias = ['Glioma', 'Meningioma', 'Sin tumor', 'Tumor hipofisario']
+    cabecera = '<tr><th scope="col">Real ↓<br>Predicha →</th>' + ''.join('<th scope="col">' + nombre.replace('Tumor hipofisario','Tumor<br>hipofisario') + '</th>' for nombre in categorias) + '</tr>'
+    filas = []
+    for nombre, fila in zip(categorias, conteos):
+        celdas = []
+        for valor in fila:
+            proporcion = valor / sum(fila)
+            etiqueta = str(valor) if tipo_matriz == 'Cantidad de imágenes' else f'{proporcion * 100:.1f} %'.replace('.', ',')
+            fondo = '#24558b' if proporcion >= 0.5 else ('#d5e5f7' if valor else '#f2f6fc')
+            color = '#ffffff' if proporcion >= 0.5 else '#24558b'
+            celdas.append(f'<td style="background:{fondo};color:{color}">{etiqueta}</td>')
+        filas.append('<tr><th scope="row">' + nombre + '</th>' + ''.join(celdas) + '</tr>')
+    st.markdown('<div class="matriz-adaptable"><table aria-label="Matriz de confusión de EfficientNet-B0"><thead>' + cabecera + '</thead><tbody>' + ''.join(filas) + '</tbody></table></div>', unsafe_allow_html=True)
+    st.caption('Valores de la evaluación del notebook. La diagonal azul muestra los aciertos.')
+
     st.subheader('¿Qué aportó entrenar con estas imágenes?')
     st.write('Comparamos ambos enfoques en las mismas 1.600 imágenes de prueba. Un porcentaje mayor indica un mejor resultado en esta evaluación.')
     def porcentaje_comparacion(valor):
